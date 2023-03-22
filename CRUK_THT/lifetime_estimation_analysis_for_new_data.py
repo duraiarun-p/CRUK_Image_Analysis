@@ -22,8 +22,9 @@ from scipy.optimize import curve_fit
 from scipy import stats
 
 #%% Data Loading 
-matfile='/home/arun/Documents/PyWSPrecision/CRUK_Image_Analysis/CRUK_THT/CRUK/HistMode_full_8bands_pixel_binning_inFW/PutSampleNameHere_Row_1_col_1/workspace.frame_1.mat'
+# matfile='/home/arun/Documents/PyWSPrecision/CRUK_Image_Analysis/CRUK_THT/CRUK/HistMode_full_8bands_pixel_binning_inFW/PutSampleNameHere_Row_1_col_1/workspace.frame_1.mat'
 
+matfile='/home/arun/Documents/PyWSPrecision/CRUK_Image_Analysis/CRUK_THT/CRUK/Row_1_Col_1_N/workspace.frame_1.mat'
 mat_contents=h5py.File(matfile,'r')
 mat_contents_list=list(mat_contents.keys())
 
@@ -32,38 +33,64 @@ frame_size_x_ref=mat_contents['frame_size_x']
 hist_mode_ref=mat_contents['HIST_MODE']
 binWidth_ref=mat_contents['binWidth']
 
-bin_array=bin_array_ref[()]
+bin_array0=bin_array_ref[()]
 frame_size=int(frame_size_x_ref[()])
 hist_mode=int(hist_mode_ref[()])
 binWidth=float(binWidth_ref[()])# time in ns
+#%% Condiioning
+bin_size=np.shape(bin_array0)
+
+bin_mean=np.mean(bin_array0)
+
+# bin_array0=bin_array0-bin_mean
+
+spectral_span_sum=8
+#%%
+spectral_index=100
+
+bin_array=np.sum(bin_array0[:,:,:,spectral_index:spectral_index+spectral_span_sum],-1)
+#%%
+# Similar to movsum
+# bin_array_0=np.zeros_like(bin_array)
+# for cum_index in range(bin_size[3]):
+#     spectral_span=np.min([bin_size[3]-cum_index,spectral_span_sum]) 
+#     print(spectral_span)
+#     bin_array_slice=bin_array[:,:,:,cum_index:spectral_span]
+#     bin_array_0[:,:,:,cum_index]=np.sum(bin_array_slice,axis=-1)
+    
+# bin_array=bin_array_0
+# del bin_array_0
 
 #%% Array Slicing based on spectrum/wavelength and parameter selection
 time_interval=binWidth
 
 time_resolution=(binWidth*1000)/(2*2**hist_mode)# time unit in ps
 
-bin_size=np.shape(bin_array)
-time_index=1
+# bin_size=np.shape(bin_array)
+time_index=2
 
 time_indices=np.arange(bin_size[time_index])
 time_line=time_indices*time_interval# Time axis for fitting data
 
-spectral_index=1
+
 
 #%% Array slicing based on fluorecence decay (photon count)
 loc_row=np.random.randint(frame_size-1, size=(1))
 loc_col=np.random.randint(frame_size-1, size=(1))
 
-bin_resp=bin_array[spectral_index,:,loc_row,loc_col]
-time_index_max=bin_resp.argmax()
+# bin_resp=bin_array[spectral_index,:,loc_row,loc_col]
+# time_index_max=bin_resp.argmax()
+# bin_resp=np.squeeze(bin_array[loc_row,loc_col,:,spectral_index])
+bin_resp=np.squeeze(bin_array[loc_row,loc_col,:])
+time_index_max=np.max(np.where(bin_resp==max(bin_resp)))
 time_bin_selected=bin_size[time_index]-time_index_max-1
 time_bin_indices_selected=time_indices[:-time_bin_selected]
 time_line_selected=time_line[time_bin_indices_selected]# x data for fitting
-bin_resp_selected=bin_resp[:,:-time_bin_selected]# Look out for the 2nd dimension
+bin_resp_selected=bin_resp[:-time_bin_selected]# Look out for the 2nd dimension
 bin_resp_selected=np.squeeze(bin_resp_selected)# y data for fitting
 bin_resp_selected=np.flip(bin_resp_selected)# Flipped for the real decay phenomenon
 
-bin_resp_selected_log=np.log(bin_resp_selected) # log(y) data for fitting
+bin_resp_selected_log=np.nan_to_num(np.log(bin_resp_selected),posinf=0, neginf=0) # log(y) data for fitting
 
 #%% Raw Data Visualisation
 
@@ -92,7 +119,7 @@ ax2.set_ylim(-0.1)
 fig.legend(['Exp','Linear'], loc='upper left',bbox_to_anchor=(0.7, 0.85))
 
 plt.show()
-plt.savefig('0.png')
+# plt.savefig('0.png')
 
 #%% Curve fitting analysis
 
@@ -151,7 +178,7 @@ def plotmyfit_2(fignum,x,y,p,r_squared,labelstring,ylabelstring,filename):
     ax.set_ylim(-0.1)
     ax.legend(fontsize=8)
     plt.show()
-    plt.savefig(filename)
+    # plt.savefig(filename)
     
 def flt_est_cf_exp(f1,time_line_selected, bin_resp_selected):
     popt, pcov = curve_fit(lambda t, a, b, c: a * np.exp(b * -t) - c, time_line_selected, bin_resp_selected,maxfev=50000)
@@ -249,4 +276,4 @@ ax.set_xlim(xlim)
 ax.set_ylim(0)
 ax.legend(fontsize=8)
 plt.show()
-plt.savefig('7.png')
+# plt.savefig('7.png')
