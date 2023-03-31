@@ -63,7 +63,12 @@ bin_resp_selected=bin_resp[:,:-time_bin_selected]# Look out for the 2nd dimensio
 bin_resp_selected=np.squeeze(bin_resp_selected)# y data for fitting
 bin_resp_selected=np.flip(bin_resp_selected)# Flipped for the real decay phenomenon
 
+time_line_selected[0]=10e-6
+
+time_line_selected_log=np.log(time_line_selected)
+
 bin_resp_selected_log=np.log(bin_resp_selected) # log(y) data for fitting
+sqrt_y=np.sqrt(bin_resp_selected)
 
 #%% Raw Data Visualisation
 
@@ -152,7 +157,29 @@ def plotmyfit_2(fignum,x,y,p,r_squared,labelstring,ylabelstring,filename):
     ax.legend(fontsize=8)
     plt.show()
     plt.savefig(filename)
-    
+
+def plotmyfit_3(fignum,x,y,p,r_squared,labelstring,ylabelstring,filename):
+    m=p[0]
+    c=p[1]
+    plt.figure(fignum)
+    # x=time_bin_indices_selected
+    # y=bin_resp_selected
+    ax = plt.axes()
+    ax.scatter(np.exp(x), np.exp(y), c='gray', marker='o', edgecolors='k', s=18, label='Raw data')
+    # xlim = np.array(ax.get_xlim())
+    # xlim[0] = 0
+    # ax.plot(xlim, 2 * xlim + 11, 'k--', label='True underlying relationship')
+    # ax.plot(x, m2 * xlim + c2, 'b', label='polyfit tool')
+    ax.plot(np.exp(x), np.exp(f(x,p)), 'k', label=labelstring)
+    ax.set_title(r'Fluorecence lifetime estimate $\tau$=%.4f (R score: %.4f)'%(abs(m),r_squared))
+    ax.set_xlabel(r'time (ns)')
+    ax.set_ylabel(ylabelstring)
+    ax.set_xlim(-0.1)
+    ax.set_ylim(-0.1)
+    ax.legend(fontsize=8)
+    plt.show()
+    plt.savefig(filename)
+
 def flt_est_cf_exp(f1,time_line_selected, bin_resp_selected):
     popt, pcov = curve_fit(lambda t, a, b, c: a * np.exp(b * -t) - c, time_line_selected, bin_resp_selected,maxfev=50000)
     # popt, pcov = curve_fit(f1, time_bin_indices_selected, bin_resp_selected)
@@ -186,6 +213,26 @@ def flt_est_polyfit_ls(time_line_selected, bin_resp_selected_log):
     r_squared2 = 1 - (ss_res2 / ss_tot2)
     return p2, r_squared2
 
+def flt_est_polyfit_ls_weighted(time_line_selected, bin_resp_selected_log,sqrt_y):
+    p2 = np.polyfit(time_line_selected, bin_resp_selected_log, 1,w=sqrt_y)
+    m2 = p2[0]
+    c2 = p2[1]
+    residuals2 = bin_resp_selected_log- f(time_line_selected, p2)
+    ss_res2 = np.sum(residuals2**2)
+    ss_tot2 = np.sum((bin_resp_selected_log-np.mean(bin_resp_selected_log))**2)
+    r_squared2 = 1 - (ss_res2 / ss_tot2)
+    return p2, r_squared2
+
+def flt_est_polyfit_log(time_line_selected_log, bin_resp_selected_log):
+    p2 = np.polyfit(time_line_selected_log, bin_resp_selected_log, 1)
+    m2 = p2[0]
+    c2 = p2[1]
+    residuals2 = bin_resp_selected_log- f(time_line_selected_log, p2)
+    ss_res2 = np.sum(residuals2**2)
+    ss_tot2 = np.sum((bin_resp_selected_log-np.mean(bin_resp_selected_log))**2)
+    r_squared2 = 1 - (ss_res2 / ss_tot2)
+    return p2, r_squared2
+
 def flt_est_cf_ls(time_line_selected, bin_resp_selected_log):
     popt1, pcov1 = curve_fit(lambda t, m, c: m * t + c, time_line_selected, bin_resp_selected_log,maxfev=50000)
     m3 = popt1[0]
@@ -205,6 +252,8 @@ def flt_est_cf_ls_log(time_line_selected, bin_resp_selected):
     ss_tot3 = np.sum((bin_resp_selected_log-np.mean(bin_resp_selected))**2)
     r_squared3 = 1 - (ss_res3 / ss_tot3)
     return popt1, r_squared3
+
+
     
 # plotmyfit(100,time_line_selected,bin_resp_selected)
 # plotmyfit(101,time_line_selected,bin_resp_selected_log)
@@ -224,8 +273,17 @@ plotmyfit_2(103,time_line_selected,bin_resp_selected_log,p4, r_squared4,'LS usin
 p5, r_squared5=flt_est_cf_ls_log(time_line_selected[:4], bin_resp_selected[:4])
 plotmyfit_2(104,time_line_selected[:4],bin_resp_selected[:4],p5, r_squared5,'LS using Curve fit (Exp Partial Decay)','Intensity (log (counts))','5.png')
 
+
 p6, r_squared6=flt_est_cf_ls(time_line_selected[:4], bin_resp_selected_log[:4])
 plotmyfit_2(105,time_line_selected[:4],bin_resp_selected_log[:4],p6, r_squared6,'LS using Curve fit (Linear Partial Decay)','Intensity (log (counts))','6.png')
+
+
+p7, r_squared7=flt_est_polyfit_log(time_line_selected_log, bin_resp_selected_log)
+plotmyfit_3(106,time_line_selected_log,bin_resp_selected_log,p7, r_squared7,'Polyfit','Intensity (log (counts))','70.png')
+
+
+p8, r_squared8=flt_est_polyfit_ls_weighted(time_line_selected, bin_resp_selected_log,sqrt_y)
+plotmyfit_2(107,time_line_selected,bin_resp_selected_log,p8, r_squared8,'Polyfit-weighted','Intensity (log (counts))','30.png')
 #%%
 
 

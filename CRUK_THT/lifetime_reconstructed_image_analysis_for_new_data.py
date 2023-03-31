@@ -145,6 +145,8 @@ time_list_partial=[]
 
 count=0
 
+start_time_0=timer()
+
 for loc_row1 in range(frame_size):
     for loc_col1 in range(frame_size):
         # bin_resp=bin_array[spectral_index,:,loc_row1,loc_col1]
@@ -177,6 +179,8 @@ for loc_row1 in range(frame_size):
         time_list.append(time_line_selected)
         time_list_partial.append(time_line_selected[:4])
         bin_log_list_partial.append(bin_resp_selected_log[:4])
+        
+runtimeN0=(timer()-start_time_0)/60
         
 bin_Len=len(bin_list) # total number of pixel elements
 

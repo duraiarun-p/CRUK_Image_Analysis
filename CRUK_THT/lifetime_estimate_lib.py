@@ -206,6 +206,16 @@ def flt_est_polyfit_ls(time_line_selected, bin_resp_selected_log):
     r_squared2 = 1 - (ss_res2 / ss_tot2)
     return abs(m2), r_squared2
 
+def flt_est_polyfit_ls_log(time_line_selected, bin_resp_selected_log):
+    p2 = np.polyfit(time_line_selected, bin_resp_selected_log, 1)
+    m2 = p2[0]
+    c2 = p2[1]
+    residuals2 = bin_resp_selected_log- f(time_line_selected, p2)
+    ss_res2 = np.sum(residuals2**2)
+    ss_tot2 = np.sum((bin_resp_selected_log-np.mean(bin_resp_selected_log))**2)
+    r_squared2 = 1 - (ss_res2 / ss_tot2)
+    return abs(m2), r_squared2
+
 def life_time_image_reconstruct_3_concurrent(frame_size,bin_Len,bin_list,time_list,bin_index_list,n_cores):
     tau_1_array=np.zeros((frame_size,frame_size))    
     tau_1=np.zeros((bin_Len,1))
@@ -256,4 +266,27 @@ def life_time_image_reconstruct_4_concurrent(frame_size,bin_Len,bin_list,time_li
             r_1[bin_index]=resparlist[bin_index][1]
             tau_1_array[tau_row,tau_col]=resparlist[bin_index][0]
     # tau_1_array[tau_1_array>(np.mean(tau_1_array)*10)]=0
+    return tau_1_array,np.mean(r_1)
+
+
+
+def life_time_image_reconstruct_5_concurrent(frame_size,bin_Len,bin_list,time_list,bin_index_list,n_cores):
+    tau_1_array=np.zeros((frame_size,frame_size))    
+    tau_1=np.zeros((bin_Len,1))
+    r_1=np.zeros((bin_Len,1))
+    res=[]
+    resparlist=[]
+    reslist=[]
+    with concurrent.futures.ProcessPoolExecutor(max_workers=n_cores) as executor:       
+        futures = {executor.submit(flt_est_polyfit_ls,time_line,bin_resp) for bin_resp,time_line in zip(bin_list,time_list)}
+        for fut in concurrent.futures.as_completed(futures):
+            result = fut.result()
+            resparlist.append(result)
+        for bin_index in range(bin_Len):
+            tau_row=bin_index_list[bin_index][0]
+            tau_col=bin_index_list[bin_index][1]
+            tau_1[bin_index]=resparlist[bin_index][0]
+            r_1[bin_index]=resparlist[bin_index][1]
+            tau_1_array[tau_row,tau_col]=resparlist[bin_index][0]
+    tau_1_array[tau_1_array>(np.mean(tau_1_array)*10)]=0
     return tau_1_array,np.mean(r_1)
