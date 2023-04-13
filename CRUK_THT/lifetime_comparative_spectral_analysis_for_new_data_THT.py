@@ -147,10 +147,12 @@ time_index=2
 spectral_index=100
 spectral_span_sum=32
 "Windows way to pass path as an argument"
-mypath_N = str(r"C:\Users\CRUK EDD\Documents\Python_Scripts\Test_Data\Normal\Row-1_Col-1_20230303").replace("\\", "\\\\")
+# mypath_N = str(r"C:\Users\CRUK EDD\Documents\Python_Scripts\Test_Data\Normal\Row-1_Col-1_20230303").replace("\\", "\\\\")
+mypath_N = '/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Normal/Row-1_Col-1_20230303'
 bin_array_N,bin_int_array_N,bin_spec_N,spec_indices=bin_array_loader(mypath_N,tile_file,time_index,spectral_index,spectral_span_sum)
 # mypath_NB = str(r"C:\Users\CRUK EDD\Documents\Python_Scripts\Test_Data\Normal\background_20230308").replace("\\", "\\\\")
-mypath_NB = str(r"C:\Users\CRUK EDD\Documents\Python_Scripts\Test_Data\Tumour\Row-1_Col-1_20230214").replace("\\", "\\\\")
+# mypath_NB = str(r"C:\Users\CRUK EDD\Documents\Python_Scripts\Test_Data\Tumour\Row-1_Col-1_20230214").replace("\\", "\\\\")
+mypath_NB = '/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour/Row-1_Col-1_20230214'
 bin_array_NB,bin_int_array_NB,bin_spec_NB,spec_indices=bin_array_loader(mypath_NB,tile_file,time_index,spectral_index,spectral_span_sum)
 
 #%%

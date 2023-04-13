@@ -53,7 +53,10 @@ def main():
     #%% Data Loading 
     "Windows way to pass path as an argument"
     # mypath = str(r"C:\Users\CRUK EDD\Documents\Python_Scripts\Test_Data\Normal\Row-1_Col-1_20230303").replace("\\", "\\\\")
-    mypath = str(r"C:\Users\CRUK EDD\Documents\Python_Scripts\Test_Data\Tumour\Row-1_Col-1_20230214").replace("\\", "\\\\")
+    # mypath = str(r"C:\Users\CRUK EDD\Documents\Python_Scripts\Test_Data\Tumour\Row-1_Col-1_20230214").replace("\\", "\\\\")
+    mypath = '/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Normal/Row-1_Col-1_20230303'
+    
+    # mypath = '/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour/Row-1_Col-1_20230214'
     # List of responses of all tiles
     onlyfiles = [join(mypath, f) for f in listdir(mypath) if isdir(join(mypath, f))]
     onlyfiles.sort()
@@ -89,7 +92,7 @@ def main():
     time_indices=np.arange(bin_size[time_index])
     time_line=time_indices*time_interval# Time axis for fitting data
     
-    spectral_index=100
+    spectral_index=1
     spectral_span_sum=32
     # spectral_span_sum=16
     bin_size=np.shape(bin_array0)
@@ -138,7 +141,7 @@ def main():
         # bin_int_array_mask = filters.sobel(bin_int_array_mask)
         # bin_int_array_mask=area_closing(bin_int_array_mask,area_threshold=64)
     bin_int_array_mask = ndi.binary_fill_holes(bin_int_array_mask)
-    bin_int_array_mask_edge = ndi.sobel(bin_int_array_mask)
+    # bin_int_array_mask_edge = ndi.sobel(bin_int_array_mask)
     # struct2 = ndi.generate_binary_structure(3, 3)
     # bin_int_array_mask=ndi.binary_dilation(bin_int_array_mask, structure=struct2)
         # bin_int_array_mask = util.invert(bin_int_array_mask)
@@ -224,7 +227,7 @@ def main():
     # tau_1_array=sig.medfilt2d(tau_1_array)
     # if (np.max(tau_1_array)-np.min(tau_1_array))/np.mean(tau_1_array)>2:
     #     tau_1_array[tau_1_array>np.mean(tau_1_array)+((np.max(tau_1_array)-np.min(tau_1_array))/20)]=0
-    tau_1_array[tau_1_array>np.median(tau_1_array)*10]=0 # For visualisation
+    tau_1_array[tau_1_array>np.median(tau_1_array)*5]=0 # For visualisation
     # tau_1_array=sig.medfilt2d(tau_1_array)
     tau_1_array1=sig.medfilt2d(tau_1_array)
     # tau_1_array1 = ma.masked_array(tau_1_array, bin_int_array_mask)
@@ -237,7 +240,7 @@ def main():
     # tau_2_array=ndi.median_filter(tau_2_array,mode='nearest')
     tau_2_array1=sig.medfilt2d(tau_2_array)
     # # tau_2_array1 = ma.masked_array(tau_2_array, bin_int_array_mask)
-    # tau_2_array1 = np.multiply(tau_2_array, bin_int_array_mask)
+    # tau_2_array1 = np.multiply(tau_2_array1, bin_int_array_mask)
     runtimeN2=(timer()-start_time_0)/60
     
     start_time_0=timer()
@@ -245,7 +248,7 @@ def main():
     # tau_3_array=ndi.median_filter(tau_3_array,mode='nearest')
     tau_3_array1=sig.medfilt2d(tau_3_array)
     # # tau_3_array1 = ma.masked_array(tau_3_array, bin_int_array_mask)
-    # tau_3_array1 = np.multiply(tau_3_array, bin_int_array_mask)
+    # tau_3_array1 = np.multiply(tau_3_array1, bin_int_array_mask)
     runtimeN3=(timer()-start_time_0)/60
     
     start_time_0=timer()
@@ -253,8 +256,8 @@ def main():
     # tau_4_array=ndi.median_filter(tau_4_array,mode='nearest')
     tau_4_array1=sig.medfilt2d(tau_4_array)
     # # tau_4_array1 = ma.masked_array(tau_4_array, bin_int_array_mask)
-    # tau_4_array1 = np.multiply(tau_4_array, bin_int_array_mask)
-    # # tau_4_array1=sig.medfilt2d(tau_4_array1)
+    # tau_4_array1 = np.multiply(tau_4_array1, bin_int_array_mask)
+    # tau_4_array1=sig.medfilt2d(tau_4_array1)
     runtimeN4=(timer()-start_time_0)/60
     # #%%
     plt.figure(21)
@@ -266,35 +269,37 @@ def main():
     plt.colorbar()
     plt.show()
     plt.title('Curvefit-Exp fitting with $R^2$:%.3f'%r_1)
-    plt.savefig('CF_EXP_0_T.png')
+    # plt.savefig('CF_EXP_0_T.png')
     
     plt.figure(22)
     plt.imshow(tau_2_array1,cmap='gray')
     plt.colorbar()
     plt.show()
     plt.title('Linear Reg-LS fitting with $R_\mu^2$:%.3f'%r_2)
-    plt.savefig('LR_LS_0_T.png')
+    # plt.savefig('LR_LS_0_T.png')
     
     plt.figure(23)
     plt.imshow(tau_3_array1,cmap='gray')
     plt.colorbar()
     plt.show()
     plt.title('PolyFit-LS fitting with $R_\mu^2$:%.3f'%r_3)
-    plt.savefig('PF_LS_0_T.png')
+    # plt.savefig('PF_LS_0_T.png')
     
     plt.figure(24)
     plt.imshow(tau_4_array1,cmap='gray')
     plt.colorbar()
     plt.show()
     plt.title('Curvefit-LS fitting with $R_\mu^2$:%.3f'%r_4)
-    plt.savefig('CF_LS_0_T.png')
+    # plt.savefig('CF_LS_0_T.png')
     
     plt.figure(25)
     plt.imshow(bin_int_array,cmap='gray')
     plt.colorbar()
     plt.show()
     plt.title('Intensity')
-    plt.savefig('Intensity_0_T.png')
+    # plt.savefig('Intensity_0_T.png')
+    
+    print('Run time CF_EXP:%s LR:%s PF:%s CF_LS:%s'%(runtimeN1,runtimeN2,runtimeN3,runtimeN4))
     
 #%%
 if __name__=='__main__':
