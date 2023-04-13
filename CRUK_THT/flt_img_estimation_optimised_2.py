@@ -93,7 +93,7 @@ time_indices=np.arange(bin_size[time_index])
 time_line=time_indices*time_interval# Time axis for fitting data
 
 spectral_index=1
-spectral_span_sum=32
+spectral_span_sum=16
 # spectral_span_sum=16
 bin_size=np.shape(bin_array0)
 
