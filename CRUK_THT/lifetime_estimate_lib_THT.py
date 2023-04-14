@@ -315,6 +315,55 @@ def prepare_data_list(frame_size,bin_array,bin_size,time_index,time_indices,time
     bin_Len=len(bin_list) # total number of pixel elements
     return bin_Len,bin_list,time_list,bin_index_list
 
+def prepare_data_list_wo_flip(frame_size,bin_array,bin_size,time_index,time_indices,time_line):
+    
+    bin_list=[]
+    # bin_log_list=[]
+    # bin_log_list_partial=[]
+    bin_index_list=[]
+    time_list=[]
+    # time_list_partial=[]
+    
+    count=0
+    
+    for loc_row1 in range(bin_size[0]):
+        for loc_col1 in range(bin_size[1]):
+            # bin_resp=bin_array[spectral_index,:,loc_row1,loc_col1]
+            # bin_resp=np.squeeze(bin_array[loc_row1,loc_col1,:,spectral_index])
+            # bin_resp=bin_array0[loc_row1,loc_col1,:,spectral_index]
+            
+            bin_resp=bin_array[loc_row1,loc_col1,:]
+            # time_index_max=bin_resp.argmax()
+            time_index_max=np.max(np.where(bin_resp==max(bin_resp)))
+            # time_index_max=15
+            count=count+1
+            # if count == 643:
+            #     print(count)
+            #     pdb.set_trace()
+                # time_index_max[time_index_max<8]=14 # Caused by low photon count
+            # if time_index_max<14:
+            #     time_index_max=14
+            time_bin_selected=bin_size[time_index]-time_index_max-1
+            # if time_bin_selected==0:
+            #     time_bin_selected=1
+            time_bin_indices_selected=time_indices[:-time_bin_selected]
+            time_line_selected=time_line[time_bin_indices_selected]# x data for fitting
+            bin_resp_selected=bin_resp[:-time_bin_selected]# Look out for the 2nd dimension
+            bin_resp_selected=np.squeeze(bin_resp_selected)# y data for fitting
+            # bin_resp_selected=np.flip(bin_resp_selected)# Flipped for the real decay phenomenon
+    
+            # bin_resp_selected_log=np.nan_to_num(np.log(bin_resp_selected),posinf=0, neginf=0) # log(y) data for fitting
+            
+            bin_index_list.append([loc_row1,loc_col1])
+            bin_list.append(bin_resp_selected)
+            # bin_log_list.append(np.nan_to_num(np.log(bin_resp_selected),posinf=0, neginf=0))
+            time_list.append(time_line_selected)
+            # time_list_partial.append(time_line_selected[:4])
+            # bin_log_list_partial.append(bin_resp_selected_log[:4])
+            
+    bin_Len=len(bin_list) # total number of pixel elements
+    return bin_Len,bin_list,time_list,bin_index_list
+
 def prepare_data_list_log(frame_size,bin_array,bin_size,time_index,time_indices,time_line):
     
     bin_list=[]

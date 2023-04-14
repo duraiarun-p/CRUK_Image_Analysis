@@ -25,13 +25,25 @@ from scipy import ndimage as ndi
 
 from spectral import BandResampler
 
+def resample_fn(bin_spec_x,decimate_factor_x):
+    bin_spec_res_1_x=np.squeeze(sig.decimate(bin_spec_x,decimate_factor_x,ftype='iir'))
+    return bin_spec_res_1_x.clip(min=0)
+
+def resample_fn_1(bin_spec_x,decimate_factor_x):
+    bin_spec_res_1_x=np.squeeze(sig.resample(bin_spec_x,len(bin_spec_x)//(decimate_factor_x),domain='freq'))
+    return bin_spec_res_1_x
+
+def resample_fn_2(bin_spec_x,decimate_factor_x):
+    bin_spec_res_1_x=np.squeeze(sig.resample(bin_spec_x,len(bin_spec_x)//(decimate_factor_x),domain='time'))
+    return bin_spec_res_1_x.clip(min=0)
+
 from lifetime_estimate_lib_THT import life_time_image_reconstruct_1_concurrent_1,life_time_image_reconstruct_1_concurrent,life_time_image_reconstruct_4_concurrent,life_time_image_reconstruct_2_concurrent,life_time_image_reconstruct_3_concurrent
 
 #%%
 # matfile='/home/arun/Documents/PyWSPrecision/CRUK_Image_Analysis/CRUK_THT/CRUK/Row_1_Col_1_N/workspace.frame_1.mat'
-mypath = '/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Normal/Row-1_Col-1_20230303'
+# mypath = '/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Normal/Row-1_Col-1_20230303'
 
-# mypath = '/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour/Row-1_Col-1_20230214'
+mypath = '/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour/Row-1_Col-1_20230214'
 # List of responses of all tiles
 onlyfiles = [join(mypath, f) for f in listdir(mypath) if isdir(join(mypath, f))]
 onlyfiles.sort()
@@ -105,18 +117,27 @@ bin_spec_s = sig.savgol_filter(bin_spec, window_length=window, polyorder=3, mode
 band_window=5# 1 component for every band_windowth component
 bin_wave=np.arange(spectra_len)
 bin_wave_new=np.arange(spectra_len//band_window)
-resample_fn1 = BandResampler(bin_wave, bin_wave_new)
+
+wave_spectrum=np.linspace(500, 780,bin_size[3])
+# wave_samples_decimated=bin_size[3]//decimate_factor
+wave_spectrum_new = np.linspace(500, 780, spectra_len//window)
+
+resample_fn1 = BandResampler(wave_spectrum, wave_spectrum_new)
 
 bin_spec_res = resample_fn1(bin_spec_s)
 
-bin_spec_res_1=sig.resample(bin_spec_s, spectra_len//band_window,domain='time')
+# bin_spec_res_1=sig.resample(bin_spec_s, spectra_len//band_window,domain='time')
 
-bin_spec_res_2=sig.resample(bin_spec_s, spectra_len//(band_window*2),domain='time')
+# bin_spec_res_2=sig.resample(bin_spec_s, spectra_len//(band_window*2),domain='time')
 
-bin_spec_res_3=sig.resample(bin_spec_s, spectra_len//(band_window*3),domain='time')
+# bin_spec_res_3=sig.resample(bin_spec_s, spectra_len//(band_window*3),domain='time')
 
-bin_spec_res_4=sig.resample(bin_spec_s, spectra_len//(band_window*4),domain='time')
+# bin_spec_res_4=sig.resample(bin_spec_s, spectra_len//(band_window*4),domain='time')
 
+bin_spec_res_1=resample_fn(bin_spec_s,3)
+bin_spec_res_2=resample_fn(bin_spec_s,5)
+bin_spec_res_3=resample_fn(bin_spec_s,7)
+bin_spec_res_4=resample_fn(bin_spec_s,11)
 plt.figure(1)
 # plt.plot(bin_spec)
 plt.plot(bin_spec_s)
@@ -128,6 +149,35 @@ plt.plot(bin_spec_res_2)
 plt.plot(bin_spec_res_3)
 plt.plot(bin_spec_res_4)
 plt.show()
+plt.legend(['0','3','5','7','11'])
+
+bin_spec_res_11=resample_fn_1(bin_spec_s,3)
+bin_spec_res_21=resample_fn_1(bin_spec_s,5)
+bin_spec_res_31=resample_fn_1(bin_spec_s,7)
+bin_spec_res_41=resample_fn_1(bin_spec_s,11)
+
+plt.figure(3)
+plt.plot(bin_spec_res)
+plt.plot(bin_spec_res_11)
+plt.plot(bin_spec_res_21)
+plt.plot(bin_spec_res_31)
+plt.plot(bin_spec_res_41)
+plt.show()
+plt.legend(['0','3','5','7','11'])
+
+bin_spec_res_12=resample_fn_2(bin_spec_s,3)
+bin_spec_res_22=resample_fn_2(bin_spec_s,5)
+bin_spec_res_32=resample_fn_2(bin_spec_s,7)
+bin_spec_res_42=resample_fn_2(bin_spec_s,11)
+
+plt.figure(4)
+plt.plot(bin_spec_res)
+plt.plot(bin_spec_res_12)
+plt.plot(bin_spec_res_22)
+plt.plot(bin_spec_res_32)
+plt.plot(bin_spec_res_42)
+plt.show()
+plt.legend(['0','3','5','7','11'])
 ##%%
 # from spectres import spectres
 
