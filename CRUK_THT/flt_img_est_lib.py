@@ -113,16 +113,16 @@ def flt_img_exp_wo_flip(bin_array2,spectral_index,time_index,bin_size,frame_size
 
 
 #%%
-def flt_per_tile(mypath,tile_file,decimate_factor,spec_resampled):
+def flt_per_tile(matfile_list_path,decimate_factor,spec_resampled,spec_truncated):
     
-    onlyfiles = [join(mypath, f) for f in listdir(mypath) if isdir(join(mypath, f))]
-    onlyfiles.sort()
+    # onlyfiles = [join(mypath, f) for f in listdir(mypath) if isdir(join(mypath, f))]
+    # onlyfiles.sort()
     
-    # Mat file per tile
-    # tile_file=3
-    matfile_list=listdir(onlyfiles[tile_file])
-    #iterable tile
-    matfile_list_path=join(onlyfiles[tile_file],matfile_list[0])#picking the mat file
+    # # Mat file per tile
+    # # tile_file=3
+    # matfile_list=listdir(onlyfiles[tile_file])
+    # #iterable tile
+    # matfile_list_path=join(onlyfiles[tile_file],matfile_list[0])#picking the mat file
     
     start_time_0=timer()
     mat_contents=h5py.File(matfile_list_path,'r+')
@@ -173,13 +173,14 @@ def flt_per_tile(mypath,tile_file,decimate_factor,spec_resampled):
     print('Moving sum time %s'%runtimeN0)
     #%% Band resampling
     # decimate_factor=5
-    bin_spec=bin_array1[255,255,14,:]
+    bin_spec=bin_array1[255,255,14,:spec_truncated]
     # bin_spec_res_1_bin=sig.decimate(bin_spec,decimate_factor,ftype='fir')
     bin_spec_res_1_bin=resample_fn_2(bin_spec,decimate_factor)
     spec_len_new=len(bin_spec_res_1_bin)
     wave_spectrum=np.linspace(500, 780,bin_size[3])
     # wave_samples_decimated=bin_size[3]//decimate_factor
-    wave_spectrum_new = np.linspace(500, 780, spec_len_new)
+    wave_spectrum_new = np.linspace(500, wave_spectrum[spec_truncated], spec_len_new)
+    
     #%% Freeing up memory 
     del bin_array0
     
@@ -232,7 +233,7 @@ def flt_per_tile(mypath,tile_file,decimate_factor,spec_resampled):
     for loc_row1 in range(bin_size[0]):
         for loc_col1 in range(bin_size[1]):
             for time_bin in range(bin_size[2]):
-                bin_spec1=bin_array1[loc_row1,loc_col1,time_bin,:]
+                bin_spec1=bin_array1[loc_row1,loc_col1,time_bin,:spec_truncated]
                 # bin_spec_res_2_bin=resample_fn(bin_spec1,decimate_factor)
                 bin_spec_res_2_bin=resample_fn_2(bin_spec1,decimate_factor)
                 bin_array2[loc_row1,loc_col1,time_bin,:]=bin_spec_res_2_bin
@@ -246,8 +247,8 @@ def flt_per_tile(mypath,tile_file,decimate_factor,spec_resampled):
         print(spectral_index)
         tau_1_array1,bin_int_array1=flt_img_exp(bin_array2,spectral_index,time_index,bin_size,frame_size,time_indices,time_line)
         intensity[:,:,spectral_index]=bin_int_array1
-        flt[:,:,spectral_span]=tau_1_array1
+        flt[:,:,spectral_index]=tau_1_array1
     runtimeN3=(timer()-start_time_0)/60
     print('Image built time %s'%runtimeN3)
     
-    return intensity,flt,wave_spectrum,wave_spectrum_new,wave_spectrum_new[spec_resampled]
+    return intensity,flt,wave_spectrum,wave_spectrum_new

@@ -96,7 +96,7 @@ spectral_index=100 #stride over spectral dimension
 
 spectral_span_sum=32
 
-spectra_len=bin_size[-1]
+# spectra_len=bin_size[-1]
 
 
 #%%
@@ -107,24 +107,25 @@ loc_col=np.random.randint(frame_size-1, size=(1))
 
 #%%
 bin_spec=bin_array0[loc_row,loc_col,14,:]
-bin_spec=np.reshape(bin_spec, (spectra_len,1))
-# bin_spec=np.cumsum(bin_spec)
+# bin_spec=np.reshape(bin_spec, (spectra_len,1))
+bin_spec=np.squeeze(bin_spec)
 window=11
 # bin_spec_s=np.convolve(bin_spec, np.ones(window)/window, 'same')
 
-bin_spec_s = sig.savgol_filter(bin_spec, window_length=window, polyorder=3, mode='constant',axis=0)
-
+bin_spec_s = sig.savgol_filter(bin_spec[:300], window_length=window, polyorder=3, mode='constant',axis=0)
+spectra_len=len(bin_spec_s)
 band_window=5# 1 component for every band_windowth component
 bin_wave=np.arange(spectra_len)
 bin_wave_new=np.arange(spectra_len//band_window)
 
 wave_spectrum=np.linspace(500, 780,bin_size[3])
 # wave_samples_decimated=bin_size[3]//decimate_factor
-wave_spectrum_new = np.linspace(500, 780, spectra_len//window)
+spectra_len_new=100
+wave_spectrum_new = np.linspace(wave_spectrum[0], wave_spectrum[spectra_len-1], spectra_len_new)
 
-resample_fn1 = BandResampler(wave_spectrum, wave_spectrum_new)
+# resample_fn1 = BandResampler(wave_spectrum, wave_spectrum_new)
 
-bin_spec_res = resample_fn1(bin_spec_s)
+# bin_spec_res = resample_fn1(bin_spec_s)
 
 # bin_spec_res_1=sig.resample(bin_spec_s, spectra_len//band_window,domain='time')
 
@@ -133,6 +134,8 @@ bin_spec_res = resample_fn1(bin_spec_s)
 # bin_spec_res_3=sig.resample(bin_spec_s, spectra_len//(band_window*3),domain='time')
 
 # bin_spec_res_4=sig.resample(bin_spec_s, spectra_len//(band_window*4),domain='time')
+
+bin_spec_res=bin_spec_s
 
 bin_spec_res_1=resample_fn(bin_spec_s,3)
 bin_spec_res_2=resample_fn(bin_spec_s,5)
