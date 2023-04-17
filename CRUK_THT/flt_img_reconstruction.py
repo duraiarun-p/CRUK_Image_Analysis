@@ -8,6 +8,10 @@ Created on Thu Apr 13 20:33:26 2023
 #%%
 import sys
 sys.path.append("..")
+import resource
+resource.setrlimit(resource.RLIMIT_STACK, (2**29,-1))
+sys.setrecursionlimit(10**6)
+
 from os import listdir
 from os.path import join, isdir
 from timeit import default_timer as timer
