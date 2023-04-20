@@ -29,6 +29,7 @@ from scipy import ndimage as ndi
 import multiprocessing
 
 from lifetime_estimate_lib_THT import life_time_image_reconstruct_1_concurrent,prepare_data_list
+from flt_img_est_lib import resample_fn_2
 #%%
 def flt_img(bin_array2,spectral_index,time_index,fignum):
     
@@ -220,12 +221,12 @@ plt.figure(1)
 # plt.plot(bin_spec)
 plt.plot(bin_spec_s)
 plt.show()
-plt.figure(2)
-plt.plot(bin_spec_res_1)
-plt.plot(bin_spec_res_2)
-plt.plot(bin_spec_res_3)
-plt.plot(bin_spec_res_4)
-plt.show()
+# plt.figure(2)
+# plt.plot(bin_spec_res_1)
+# plt.plot(bin_spec_res_2)
+# plt.plot(bin_spec_res_3)
+# plt.plot(bin_spec_res_4)
+# plt.show()
 #%% Spectral dimension reduction by resampling (Spectral resampling)
 
 def resample_fn(bin_spec_x,decimate_factor_x):
@@ -238,7 +239,7 @@ decimate_factor=5
 spec_len=spectra_len//(band_window*scale)
 
 
-bin_spec=bin_array1[loc_row,loc_col,14,:]
+bin_spec=bin_array1[loc_row,loc_col,14,:330]
 # bin_spec_res_1_bin=sig.decimate(bin_spec,decimate_factor,ftype='fir')
 
 bin_spec_res_1_bin=resample_fn(bin_spec,decimate_factor)
@@ -255,45 +256,60 @@ wave_spectrum_new = np.linspace(500, 780, spec_len_new)
 # bin_spec_res_3=sig.decimate(bin_spec,10,ftype='fir')
 
 # bin_spec_res_4=sig.decimate(bin_spec,15,ftype='fir')
+bin_spec=np.squeeze(bin_spec)
 
-bin_spec_res_1=resample_fn(bin_spec,3)
-bin_spec_res_2=resample_fn(bin_spec,5)
-bin_spec_res_3=resample_fn(bin_spec,10)
-bin_spec_res_4=resample_fn(bin_spec,15)
+bin_spec_res_1=resample_fn_2(bin_spec,3)
+bin_spec_res_2=resample_fn_2(bin_spec,5)
+bin_spec_res_3=resample_fn_2(bin_spec,11)
+bin_spec_res_4=resample_fn_2(bin_spec,15)
 
 
 plt.figure(3)
 # plt.plot(bin_spec)
 plt.plot(bin_spec_s)
+plt.legend('raw')
 plt.show()
 plt.figure(4)
 plt.plot(bin_spec_res_1)
 plt.plot(bin_spec_res_2)
 plt.plot(bin_spec_res_3)
 plt.plot(bin_spec_res_4)
+plt.legend(['3','5','10','15'])
+plt.show()
+
+bin_spec_res_1=resample_fn(bin_spec,3)
+bin_spec_res_2=resample_fn(bin_spec,5)
+bin_spec_res_3=resample_fn(bin_spec,11)
+bin_spec_res_4=resample_fn(bin_spec,15)
+plt.figure(5)
+plt.plot(bin_spec_res_1)
+plt.plot(bin_spec_res_2)
+plt.plot(bin_spec_res_3)
+plt.plot(bin_spec_res_4)
+plt.legend(['3','5','10','15'])
 plt.show()
 
 #%%
 
 # spec_len=100
-start_spectrum=0
-# stop_spectrum=300
-stop_spectrum=bin_size[3]
-stop_spectrum_len=spec_len
-bin_array2=np.zeros((bin_size[0],bin_size[1],bin_size[2],spec_len_new))
-start_time_0=timer()
-for loc_row1 in range(bin_size[0]):
-    for loc_col1 in range(bin_size[1]):
-        for time_bin in range(bin_size[2]):
-            bin_spec1=bin_array1[loc_row1,loc_col1,time_bin,start_spectrum:stop_spectrum]
-            # bin_spec1=np.reshape(bin_spec1, (spectra_len,1))
-            # bin_spec_res_2_bin=sig.resample(bin_spec1, spectra_len//(band_window*scale),domain='time')
-            # bin_spec_res_2_bin=sig.decimate(bin_spec1,decimate_factor,ftype='fir')
-            bin_spec_res_2_bin=resample_fn(bin_spec1,decimate_factor)
-            bin_array2[loc_row1,loc_col1,time_bin,:]=bin_spec_res_2_bin
+# start_spectrum=0
+# # stop_spectrum=300
+# stop_spectrum=bin_size[3]
+# stop_spectrum_len=spec_len
+# bin_array2=np.zeros((bin_size[0],bin_size[1],bin_size[2],spec_len_new))
+# start_time_0=timer()
+# for loc_row1 in range(bin_size[0]):
+#     for loc_col1 in range(bin_size[1]):
+#         for time_bin in range(bin_size[2]):
+#             bin_spec1=bin_array1[loc_row1,loc_col1,time_bin,start_spectrum:stop_spectrum]
+#             # bin_spec1=np.reshape(bin_spec1, (spectra_len,1))
+#             # bin_spec_res_2_bin=sig.resample(bin_spec1, spectra_len//(band_window*scale),domain='time')
+#             # bin_spec_res_2_bin=sig.decimate(bin_spec1,decimate_factor,ftype='fir')
+#             bin_spec_res_2_bin=resample_fn(bin_spec1,decimate_factor)
+#             bin_array2[loc_row1,loc_col1,time_bin,:]=bin_spec_res_2_bin
 
-runtimeN0=(timer()-start_time_0)/60
-print(runtimeN0)
+# runtimeN0=(timer()-start_time_0)/60
+# print(runtimeN0)
 #%%
 spectral_index=5
 # bin_array=np.sum(bin_array2[:,:,:,spectral_index],-1)
@@ -311,12 +327,12 @@ spectral_index=5
 #    for _ in range(cycles):
 #        image = image.filter(ImageFilter.MaxFilter(3))
 #    return np.array(image)
-start_time_0=timer()
-flt_img(bin_array2,0,time_index,10)
+# start_time_0=timer()
+# flt_img(bin_array2,0,time_index,10)
 # flt_img(bin_array2,24,time_index,20)
 # flt_img(bin_array2,50,time_index,30)
 # flt_img(bin_array2,55,time_index,40)
-flt_img(bin_array2,75,time_index,50)
+# flt_img(bin_array2,75,time_index,50)
 
 # flt_img(bin_array2,90,time_index,70)
 
@@ -326,7 +342,7 @@ flt_img(bin_array2,75,time_index,50)
 
 # flt_img(bin_array2,125,time_index,115)
 
-runtimeN0=(timer()-start_time_0)/60
-print(runtimeN0)
+# runtimeN0=(timer()-start_time_0)/60
+# print(runtimeN0)
 #%%
 # bin_resp=bin_array2[255,255,:,101]
