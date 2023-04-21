@@ -50,10 +50,10 @@ def main(argv):
     mypath=argv[1]
     save_path=argv[2]
     
-    mypath_splitted = mypath.replace('/',',')
-    mypath_splitted = mypath_splitted.split(',')
-    tissue_core_file_name=mypath_splitted[-2]
-    print(tissue_core_file_name)
+    #mypath_splitted = mypath.replace('/',',')
+    #mypath_splitted = mypath_splitted.split(',')
+    #tissue_core_file_name=mypath_splitted[-1]
+    #print(tissue_core_file_name)
     
     decimate_factor=15
     spec_resampled=20# Change it to 20
@@ -70,7 +70,7 @@ def main(argv):
     start_time_0_I=timer()
     # onlyfiles_len=1
     
-    for tile_file in range(onlyfiles_len):
+    for tile_file in range(len(onlyfiles)):
         
     
         matfile_list=listdir(onlyfiles[tile_file])
@@ -83,7 +83,8 @@ def main(argv):
         mdic = {"img_int": img_int, "img_flt":img_flt, "wave_spectrum":wave_spectrum,"wave_spectrum_new":wave_spectrum_new,"runtimeN3":runtimeN3}
         # mdic ={"tile_file":tile_file}
         print('Tile built time %s'%runtimeN3)
-        matfile_filename=save_path+'/'+tissue_core_file_name+'-'+str(tile_file)+'.mat'
+        #matfile_filename=save_path+'/'+tissue_core_file_name+'-'+str(tile_file)+'.mat'
+        matfile_filename=save_path+'/'+str(tile_file)+'.mat'
         print(matfile_filename)
         savemat(matfile_filename, mdic)
     

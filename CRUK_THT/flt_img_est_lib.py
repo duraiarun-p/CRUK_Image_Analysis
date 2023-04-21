@@ -33,7 +33,7 @@ from lifetime_estimate_lib_THT import life_time_image_reconstruct_1_concurrent,p
 #%%
 
 def resample_fn(bin_spec_x,decimate_factor_x):
-    bin_spec_res_1_x=np.squeeze(sig.decimate(bin_spec_x,decimate_factor_x,ftype='fir'))
+    bin_spec_res_1_x=np.squeeze(sig.decimate(np.squeeze(bin_spec_x),decimate_factor_x,ftype='fir'))
     return bin_spec_res_1_x
 
 def resample_fn_2(bin_spec_x,decimate_factor_x):
@@ -73,7 +73,7 @@ def flt_img_exp(bin_array2,spectral_index,time_index,bin_size,frame_size,time_in
     # tau_1,r_1=life_time_image_reconstruct_1_gpu(frame_size,bin_Len,bin_list,time_line)
     runtimeN1=(timer()-start_time_0)/60
     print('Lifetime reconstruction time %s'%runtimeN1)
-    return tau_1_array1,bin_int_array1
+    return tau_1_array1,bin_int_array
 
 def flt_img_exp_wo_flip(bin_array2,spectral_index,time_index,bin_size,frame_size,time_indices,time_line):
     
@@ -234,21 +234,26 @@ def flt_per_tile(matfile_list_path,decimate_factor,spec_resampled,spec_truncated
         for loc_col1 in range(bin_size[1]):
             for time_bin in range(bin_size[2]):
                 bin_spec1=bin_array1[loc_row1,loc_col1,time_bin,:spec_truncated]
-                # bin_spec_res_2_bin=resample_fn(bin_spec1,decimate_factor)
-                bin_spec_res_2_bin=resample_fn_2(bin_spec1,decimate_factor)
+                bin_spec_res_2_bin=resample_fn(bin_spec1,decimate_factor)
+                # bin_spec_res_2_bin=resample_fn_2(bin_spec1,decimate_factor)
                 bin_array2[loc_row1,loc_col1,time_bin,:]=bin_spec_res_2_bin
     runtimeN0=(timer()-start_time_0)/60
     print('Band resampling Loop %s'%runtimeN0)
     #%%
-    intensity=np.zeros((bin_size[0],bin_size[1],spec_resampled))
-    flt=np.zeros((bin_size[0],bin_size[1],spec_resampled))
+    spec_resampled_new=np.arange(0,spec_resampled,1)# change it to 2 for Every 2nd compnent
+    # spec_resampled_new=np.arange(0,spec_resampled//2,1)# FIrst 10 compnent
+    wave_spectrum_new_select=wave_spectrum_new[spec_resampled_new]
+    intensity=np.zeros((bin_size[0],bin_size[1],len(spec_resampled_new)))
+    flt=np.zeros((bin_size[0],bin_size[1],len(spec_resampled_new)))
     start_time_0=timer()
-    for spectral_index in range(spec_resampled):   
+    # for spectral_index in range(spec_resampled):   
+    for spectral_index in range(len(spec_resampled_new)): 
         print(spectral_index)
-        tau_1_array1,bin_int_array1=flt_img_exp(bin_array2,spectral_index,time_index,bin_size,frame_size,time_indices,time_line)
+        spectral_index_new=spec_resampled_new[spectral_index]
+        tau_1_array1,bin_int_array1=flt_img_exp(bin_array2,spectral_index_new,time_index,bin_size,frame_size,time_indices,time_line)
         intensity[:,:,spectral_index]=bin_int_array1
         flt[:,:,spectral_index]=tau_1_array1
     runtimeN3=(timer()-start_time_0)/60
     print('Image built time %s'%runtimeN3)
     
-    return intensity,flt,wave_spectrum,wave_spectrum_new
+    return intensity,flt,wave_spectrum,wave_spectrum_new,wave_spectrum_new_select
