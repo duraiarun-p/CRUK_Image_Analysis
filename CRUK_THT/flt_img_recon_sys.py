@@ -60,15 +60,13 @@ def main(argv):
     spec_truncated=330
     # mypath = '/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour/Row-1_Col-1_20230214'
     # List of responses of all tiles
-    onlyfiles = [join(mypath, f) for f in listdir(mypath) if isdir(join(mypath, f))]
+    onlyfiles = [join(mypath, f) for f in listdir(mypath) if isdir(join(mypath, f)) and f.startswith('R')]
     onlyfiles.sort()
-    del onlyfiles[0]# remove first directory index - ouput directory
-    onlyfiles_len=len(onlyfiles)
-    
-    #%% Image Reconstruction
+    #del onlyfiles[0]
+    #del onlyfiles[0]
+    # onlyfiles_len=1
     
     start_time_0_I=timer()
-    # onlyfiles_len=1
     
     for tile_file in range(len(onlyfiles)):
         

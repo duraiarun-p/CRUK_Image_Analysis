@@ -48,15 +48,19 @@ for tile_file in range(onlyfiles_len):
     img_int_ref=mat_contents['img_int']
     img_flt=img_flt_ref[()]
     img_int=img_int_ref[()]
+    img_flt[img_flt>5]=5
     img_flt=np.moveaxis(img_flt, -1, 0)
     img_int=np.moveaxis(img_int, -1, 0)
     
     # filename=str(tile_file)+'.tiff'
-    filename='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/CRUK_THT/Test_Output/Tiling/Tile_'+str(tile_file+1)+'.tif'
+    filename='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/CRUK_THT/Test_Output/Tiling/Tile_'+str(tile_file+1)+'.png'
     # Documents/PyWS_CRUK/CRUK_Image_Analysis/CRUK_THT/Test_Output/Tiling
     img_int_sl=np.sum(img_int[:,:,:],axis=0)
     imageio.imwrite(filename,img_int_sl)
     
+    filename1='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/CRUK_THT/Test_Output/Tiling/Spec1_'+str(tile_file+1)+'.png'
+    img_flt_sl=img_flt[-1,:,:]
+    imageio.imwrite(filename1,img_flt_sl)
     flt_cube_list.append(img_flt)
     int_cube_list.append(img_int)
     int_list.append(img_int_sl)
@@ -172,30 +176,30 @@ def view_stitch(img_1,img_2):
     kp2, des2 = sift.detectAndCompute(img2,None)
     #cv2.imshow('original_image_left_keypoints',cv2.drawKeypoints(img_,kp1,None))
 
-    match_ob = cv2.BFMatcher(cv2.NORM_L1, crossCheck=False)
-    # match = cv2.BFMatcher()
-    # matches = match.knnMatch(des1,des2,k=2)
+    # match_ob = cv2.BFMatcher(cv2.NORM_L1, crossCheck=False)
+    match = cv2.BFMatcher()
+    matches = match.knnMatch(des1,des2,k=2)
     
-    matches = match_ob.match(des1, des2)
+    # matches = match_ob.match(des1, des2)
 
-    # good = []
-    # for m,n in matches:
-    #     if m.distance < 0.95*n.distance:
-    #         good.append(m)
+    good = []
+    for m,n in matches:
+        if m.distance < 0.85*n.distance:
+            good.append(m)
             
-    # if len(good) > 10:
-    #     src_pts = np.float32([ kp1[m.queryIdx].pt for m in good ]).reshape(-1,1,2)
-    #     dst_pts = np.float32([ kp2[m.trainIdx].pt for m in good ]).reshape(-1,1,2)
+    if len(good) > 10:
+        src_pts = np.float32([ kp1[m.queryIdx].pt for m in good ]).reshape(-1,1,2)
+        dst_pts = np.float32([ kp2[m.trainIdx].pt for m in good ]).reshape(-1,1,2)
 
-    #     M, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, 5.0)
-    good = matches
-    # src_pts = np.float32([ kp1[m.queryIdx].pt for m in good ]).reshape(-1,1,2)
-    # dst_pts = np.float32([ kp2[m.trainIdx].pt for m in good ]).reshape(-1,1,2)
+        M, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, 5.0)
+    # good = matches
+    src_pts = np.float32([ kp1[m.queryIdx].pt for m in good ]).reshape(-1,1,2)
+    dst_pts = np.float32([ kp2[m.trainIdx].pt for m in good ]).reshape(-1,1,2)
     
-    src_pts = np.float32([kp1[i.queryIdx].pt for i in matches])
-    dst_pts = np.float32([kp2[i.trainIdx].pt for i in matches])
+    # src_pts = np.float32([kp1[i.queryIdx].pt for i in matches])
+    # dst_pts = np.float32([kp2[i.trainIdx].pt for i in matches])
 
-    M, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, 5.0)
+    # M, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, 5.0)
         
     # else:
     #     M = 0
@@ -206,7 +210,7 @@ def view_stitch(img_1,img_2):
                         flags = 2)
     img3 = cv2.drawMatches(img1,kp1,img2,kp2,good,None,**draw_params)
     cv2.imshow("original_image_drawMatches", img3)
-    
+    cv2.imwrite('match_descriptors1.png', img3)
     
     warped_image = cv2.warpPerspective(img_1,M,(img_1.shape[0]*2, img_1.shape[1]*2))
     # warped_image=warpImages(img1, img2, M)
@@ -217,7 +221,12 @@ def view_stitch(img_1,img_2):
     
     
 #%%
-# M=view_stitch(tile_1, tile_2)
+# tile_1=int_list[0]
+# tile_2=int_list[3]
+tile_1=flt_cube_list[0][-1,:,:]
+tile_2=flt_cube_list[3][-1,:,:]
+M=view_stitch(tile_1, tile_2)
+
 # tile_1 = cv2.normalize(tile_1, None, 0, 255, cv2.NORM_MINMAX).astype('uint8')
 # tile_2 = cv2.normalize(tile_2, None, 0, 255, cv2.NORM_MINMAX).astype('uint8')
 

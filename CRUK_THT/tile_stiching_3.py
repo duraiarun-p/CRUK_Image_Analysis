@@ -21,12 +21,13 @@ from os import listdir
 from os.path import join, isdir
 from timeit import default_timer as timer
 from scipy import ndimage as ndi
+import scipy
 
 
 #%%
 
-# mypath='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour/Row-5_Col-11_20230224/FLT_IMG_DIR_4'
-mypath='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour/Row-1_Col-9_20230222/FLT_IMG_DIR'
+mypath='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour/Row-5_Col-11_20230224/FLT_IMG_DIR_4'
+# mypath='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour/Row-1_Col-9_20230222/FLT_IMG_DIR'
 
 # onlyfiles = [join(mypath, f) for f in listdir(mypath) if isdir(join(mypath, f))]
 onlyfiles = [join(mypath, f) for f in listdir(mypath)]
@@ -47,6 +48,7 @@ for tile_file in range(onlyfiles_len):
     img_int_ref=mat_contents['img_int']
     img_flt=img_flt_ref[()]
     img_int=img_int_ref[()]
+    img_flt[img_flt>5]=5
     
     img_int_sl=np.sum(img_int[:,:,:],axis=-1)
     
@@ -91,6 +93,11 @@ for tile_index in range(onlyfiles_len):
     int_img_tile=int_cube_list[tile_index]
     int_list_sl=int_list[tile_index]
     
+    # flt_img_tile=ndi.median_filter(flt_img_tile,size=3)
+    # int_img_tile=ndi.median_filter(int_img_tile,size=3)
+    # int_list_sl=ndi.median_filter(int_list_sl,size=3)
+    
+    
     cube_flt[row_start[tile_index]:row_stop[tile_index],col_start[tile_index]:col_stop[tile_index],:]=flt_img_tile
     cube_int[row_start[tile_index]:row_stop[tile_index],col_start[tile_index]:col_stop[tile_index],:]=int_img_tile
     tma_int[row_start[tile_index]:row_stop[tile_index],col_start[tile_index]:col_stop[tile_index]]=int_list_sl
@@ -118,9 +125,7 @@ for page in range(cube_page):
 tma_int=np.fliplr(ndi.rotate(tma_int, 90))
 
 #%%
-plt.figure(10),
-plt.imshow(tma_int,cmap='gray')
-plt.show()
+
 #%%
 # row_start=row_start
 # row_stop=row_stop
@@ -209,16 +214,53 @@ def img_tiling(tma_intx,tma_int_fx):
         tma_int_fx[976:1440,976:1464]=tma_intx[1072:1536,1024:1512]
     return tma_int_fx
 
+def img_tile_remove(tma_int_fx):
+    tma_int_fx[:,487]=(tma_int_fx[:,488]+tma_int_fx[:,489])*0.5
+    tma_int_fx[:,975]=(tma_int_fx[:,974]+tma_int_fx[:,976])*0.5
+    tma_int_fx[487,:]=(tma_int_fx[488,:]+tma_int_fx[489,:])*0.5
+    tma_int_fx[975,:]=(tma_int_fx[974,:]+tma_int_fx[976,:])*0.5
+    
+    # tma_fx_arr=
+    return tma_int_fx
+
 #%%
+
 
 tma_int_f=img_tiling(tma_int,tma_int_f)
 cube_flt_f=img_tiling(cube_flt,cube_flt_f)
 cube_int_f=img_tiling(cube_int,cube_int_f)
 
+# tma_int_f=img_tile_remove(tma_int_f)
+k_size=11
+# tma_int_f=ndi.median_filter(tma_int_f, size=k_size)
+# cube_flt_f=ndi.median_filter(cube_flt_f, size=k_size)
+# cube_int_f=ndi.median_filter(cube_int_f, size=k_size)
+#%%
+plt.figure(10),
+plt.imshow(tma_int,cmap='gray')
+plt.colorbar()
+plt.show()
+plt.title('Core Intensity Image - before mosaicing')
+plt.savefig('Core_Int.png')
+
+page_index=-1
+plt.figure(1)
+plt.imshow(cube_flt[:,:,page_index],cmap='gray')
+plt.colorbar()
+plt.show()
+plt.title('Core FLT Image - before mosaicing')
+plt.savefig('Core_FLT.png')
+
 plt.figure(11),
 plt.imshow(tma_int_f,cmap='gray')
+plt.colorbar()
 plt.show()
-#%%
+plt.title('Core Intensity Image - after mosaicing')
+plt.savefig('Core_Int_M.png')
+
 plt.figure(2)
-plt.imshow(cube_flt_f[:,:,4],cmap='gray')
+plt.imshow(cube_flt_f[:,:,page_index],cmap='gray')
+plt.colorbar()
 plt.show()
+plt.title('Core FLT Image - after mosaicing')
+plt.savefig('Core_FLT_M.png')

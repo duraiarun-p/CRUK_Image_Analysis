@@ -65,7 +65,7 @@ def flt_img_exp(bin_array2,spectral_index,time_index,bin_size,frame_size,time_in
     # tau_1_array=sig.medfilt2d(tau_1_array)
     # if (np.max(tau_1_array)-np.min(tau_1_array))/np.mean(tau_1_array)>2:
     #     tau_1_array[tau_1_array>np.mean(tau_1_array)+((np.max(tau_1_array)-np.min(tau_1_array))/20)]=0
-    tau_1_array[tau_1_array>np.median(tau_1_array)*50]=0 # For visualisation
+    #tau_1_array[tau_1_array>np.median(tau_1_array)*50]=0 # For visualisation # Commented to analyse full core
     # tau_1_array=sig.medfilt2d(tau_1_array)
     tau_1_array1=sig.medfilt2d(tau_1_array)
     # tau_1_array1 = ma.masked_array(tau_1_array, bin_int_array_mask)
@@ -228,13 +228,18 @@ def flt_per_tile(matfile_list_path,decimate_factor,spec_resampled,spec_truncated
     # runtimeN0=(timer()-start_time_0)/60
     # print('Band resampled array Loop %s'%runtimeN0)
     # bin_array2=bin_array1[:,:,:,:spec_resampled]
+    #spec_index=np.round(np.linspace(0,spec_truncated-1,spec_resampled)).astype(int)
+    #spec_len_new=len(spec_index)
     start_time_0=timer()
     bin_array2=np.zeros((bin_size[0],bin_size[1],bin_size[2],spec_len_new))
     for loc_row1 in range(bin_size[0]):
         for loc_col1 in range(bin_size[1]):
             for time_bin in range(bin_size[2]):
                 bin_spec1=bin_array1[loc_row1,loc_col1,time_bin,:spec_truncated]
-                bin_spec_res_2_bin=resample_fn(bin_spec1,decimate_factor)
+                
+                bin_spec_res_2_bin=resample_fn(bin_spec1,decimate_factor)# Resampling
+                # choose bin based on selection
+                # bin_spec_res_2_bin=bin_spec1[spec_index]
                 # bin_spec_res_2_bin=resample_fn_2(bin_spec1,decimate_factor)
                 bin_array2[loc_row1,loc_col1,time_bin,:]=bin_spec_res_2_bin
     runtimeN0=(timer()-start_time_0)/60

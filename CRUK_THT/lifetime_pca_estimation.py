@@ -6,7 +6,8 @@ Created on Sat Apr  8 19:52:58 2023
 @author: arun
 """
 #%%
-
+from os import listdir
+from os.path import isfile, join, isdir
 
 import h5py
 import numpy as np
@@ -20,7 +21,21 @@ from matplotlib import pyplot as plt
 from spectral import principal_components
 
 #%%
-matfile='/home/arun/Documents/PyWSPrecision/CRUK_Image_Analysis/CRUK_THT/CRUK/Row_1_Col_1_N/workspace.frame_1.mat'
+# matfile='/home/arun/Documents/PyWSPrecision/CRUK_Image_Analysis/CRUK_THT/CRUK/Row_1_Col_1_N/workspace.frame_1.mat'
+
+mypath = '/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Normal/Row-1_Col-1_20230303'
+
+# mypath = '/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour/Row-1_Col-1_20230214'
+# List of responses of all tiles
+onlyfiles = [join(mypath, f) for f in listdir(mypath) if isdir(join(mypath, f))]
+onlyfiles.sort()
+
+# Mat file per tile
+tile_file=3
+matfile_list=listdir(onlyfiles[tile_file])
+#iterable tile
+matfile_list_path=join(onlyfiles[tile_file],matfile_list[0])#picking the mat file
+matfile=matfile_list_path
 
 start_time_0=timer()
 mat_contents=h5py.File(matfile,'r')
@@ -94,7 +109,10 @@ v = pc.cov
 
 plt.figure(21)
 plt.imshow(img[:,:,25],cmap='gray')
+plt.colorbar()
+plt.title('Original intensity image')
 plt.show()
+plt.savefig('bin_img.png')
 
 plt.figure(22)
 plt.imshow(v,cmap='gray')
@@ -103,11 +121,13 @@ plt.show()
 #%%
 pc_0999 = pc.reduce(fraction=0.85)
 img_pc = pc_0999.transform(img)
-
+#%%
 plt.figure(23)
-plt.imshow(img_pc[:,:,3],cmap='gray')
+plt.imshow(img_pc[:,:,1],cmap='gray')
 plt.colorbar()
+plt.title('Principal component')
 plt.show()
+plt.savefig('pca_img.png')
 #%%
 
 # bin_array0_1=np.zeros_like(bin_array0)
@@ -151,8 +171,12 @@ bin_resp=bin_array0_1[loc_row1,loc_col1,:,1]
 plt.figure(24)
 # plt.imshow(img_pc[:,:,3],cmap='gray')
 plt.plot(bin_resp)
+plt.xlabel('Time (ns)')
+plt.ylabel('Principal Component')
 # plt.colorbar()
+plt.title('Fluorescence decay based on PCA')
 plt.show()
+plt.savefig('pca_binresp.png')
 
 #%%
 #%%

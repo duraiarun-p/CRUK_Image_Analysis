@@ -8,7 +8,8 @@ echo "Env im_py37 activated"
 echo "Current working directory"
 pwd
 touch normal_log.txt
-cd /mnt/local_share/TMA/FS-FLIM/raw/Normal_1B
+#cd /mnt/local_share/TMA/FS-FLIM/raw/Normal_1B
+cd /home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour
 #ls -l
 MYPATH_NORMAL=$(pwd)
 #$MYPATH_NORMAL="/mnt/local_share/TMA/FS-FLIM/raw/Normal_1B"
@@ -17,7 +18,8 @@ cd $MYPATH_NORMAL
 for NORMAL in R*
 do
  cd $NORMAL
- echo $NORMAL >> /home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/CRUK_THT/normal_log.txt
+ TIME_NOW=$(date)
+ #echo $NORMAL >> /home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/CRUK_THT/tunour_log.txt
  MYPATH_NORMAL_CORE=$(pwd)
  mkdir -p FLT_IMG_DIR
  FLT_IMG_DIR_NAME=FLT_IMG_DIR
@@ -25,6 +27,8 @@ do
  echo $NORMAL
  echo "Executing Python Script"
  python /home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/CRUK_THT/flt_img_recon_sys.py $MYPATH_NORMAL_CORE $MYPATH_NORMAL_CORE_OUTPUT
+ TIME_LATER=$(date)
+ echo "$NORMAL $TIME_NOW  $TIME_LATER">> /home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/CRUK_THT/tunour_log.txt
  cd ..
  
 done
