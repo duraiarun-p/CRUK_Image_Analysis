@@ -6,7 +6,7 @@ Created on Tue May 30 12:09:42 2023
 @author: Arun PDRA, THT
 """
 
-from aicsimageio import AICSImage
+# from aicsimageio import AICSImage
 
 # from aicsimageio.readers import CziReader
 
@@ -15,12 +15,15 @@ from aicsimageio import AICSImage
 # from pathlib import Path
 
 #%%
-img = AICSImage("/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour/tumour_2B_HE.czi") # selects the first scene found
-img.metadata 
-cx=img.physical_pixel_sizes.X
-cy=img.physical_pixel_sizes.Y
-print(cx)
-del img
+# img = AICSImage("/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour/tumour_2B_HE.czi") # selects the first scene found
+# img.metadata 
+# cx=img.physical_pixel_sizes.X
+# cy=img.physical_pixel_sizes.Y
+# print(cx)
+# del img
+
+cx=0.22002761346548994
+cy=0.22002761346548994
 # img = CziReader("/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour/tumour_2B_HE.czi") # selects the first scene found
 # m=img.metadata
 
@@ -255,6 +258,13 @@ def img_tile_remove(tma_int_fx):
 
 
 tma_int_f=img_tiling(tma_int,tma_int_f)
+sz=tma_int_f.shape
+
+tma_int_f_N = np.zeros_like(tma_int_f)
+tma_int_f_N = np.round(cv2.normalize(tma_int_f,  tma_int_f_N, 0, 255, cv2.NORM_MINMAX))
+tma_int_f_N=tma_int_f_N.astype('uint8')
+
+
 #%%
 
 # import SimpleITK as sitk
@@ -271,3 +281,73 @@ tma_int_f=img_tiling(tma_int,tma_int_f)
 # elastixImageFilter.Execute()
 # res_img=elastixImageFilter.GetResultImage()
 # # sitk.WriteImage(elastixImageFilter.GetResultImage())
+#%%
+flt_h=sz[0]
+flt_w=sz[1]
+tma_scan =  cv2.imread("/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour/Row-5_Col-11_20230224/Row-5_Col-11.tif")
+tma_scan=cv2.resize(tma_scan, (flt_h,flt_w))
+
+# tma_scan_f=cv2.bitwise_not(cv2.cvtColor(tma_scan,cv2.COLOR_BGR2GRAY))
+tma_scan_hsv = cv2.cvtColor(tma_scan, cv2.COLOR_BGR2HSV)
+tma_scan_f=tma_scan_hsv[:,:,2]
+tma_scan_f[tma_scan_f>200]=0
+
+
+warp_mode = cv2.MOTION_AFFINE
+
+warp_matrix = np.eye(2, 3, dtype=np.float32)
+
+number_of_iterations = 50000
+
+
+termination_eps = 1e-10
+
+criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, number_of_iterations,  termination_eps)
+
+# (cc, warp_matrix) = cv2.findTransformECC (tma_int_f_N,tma_scan_f,warp_matrix, warp_mode, criteria)
+
+# # warp_matrix=cv2.getAffine
+
+# tma_scan_f_R = cv2.warpAffine(tma_scan_f, warp_matrix, (sz[1],sz[0]), flags=cv2.INTER_LINEAR + cv2.WARP_INVERSE_MAP)
+
+
+img1=tma_int_f
+img2=tma_scan_f
+
+from microaligner import FeatureRegistrator, transform_img_with_tmat
+freg = FeatureRegistrator()
+freg.ref_img = img1
+freg.mov_img = img2
+transformation_matrix = freg.register()
+
+img2_feature_reg_aligned = transform_img_with_tmat(img2, img2.shape, transformation_matrix)
+tma_scan_f_R=img2_feature_reg_aligned
+
+
+from microaligner import OptFlowRegistrator, Warper 
+ofreg = OptFlowRegistrator()
+ofreg.ref_img = img1
+ofreg.mov_img = img2
+flow_map = ofreg.register()
+
+warper = Warper()
+warper.image = img2
+warper.flow = flow_map
+img2_optflow_reg_aligned = warper.warp()
+tma_scan_f_R=img2_optflow_reg_aligned
+
+
+#%%
+plt.figure(1),
+plt.subplot(1,2,1),
+plt.imshow(tma_scan_f, cmap='gray'),
+plt.subplot(1,2,2),
+plt.imshow(tma_int_f_N,cmap='gray')
+plt.show()
+
+plt.figure(2),
+plt.subplot(1,2,1),
+plt.imshow(tma_scan_f_R, cmap='gray'),
+plt.subplot(1,2,2),
+plt.imshow(tma_int_f_N,cmap='gray')
+plt.show()
