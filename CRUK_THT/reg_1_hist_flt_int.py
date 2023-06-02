@@ -304,37 +304,37 @@ termination_eps = 1e-10
 
 criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, number_of_iterations,  termination_eps)
 
-# (cc, warp_matrix) = cv2.findTransformECC (tma_int_f_N,tma_scan_f,warp_matrix, warp_mode, criteria)
+(cc, warp_matrix) = cv2.findTransformECC (tma_int_f_N,tma_scan_f,warp_matrix, warp_mode, criteria)
 
 # # warp_matrix=cv2.getAffine
 
-# tma_scan_f_R = cv2.warpAffine(tma_scan_f, warp_matrix, (sz[1],sz[0]), flags=cv2.INTER_LINEAR + cv2.WARP_INVERSE_MAP)
+tma_scan_f_R = cv2.warpAffine(tma_scan_f, warp_matrix, (sz[1],sz[0]), flags=cv2.INTER_LINEAR + cv2.WARP_INVERSE_MAP)
 
 
-img1=tma_int_f
-img2=tma_scan_f
+# img1=tma_int_f
+# img2=tma_scan_f
 
-from microaligner import FeatureRegistrator, transform_img_with_tmat
-freg = FeatureRegistrator()
-freg.ref_img = img1
-freg.mov_img = img2
-transformation_matrix = freg.register()
+# from microaligner import FeatureRegistrator, transform_img_with_tmat
+# freg = FeatureRegistrator()
+# freg.ref_img = img1
+# freg.mov_img = img2
+# transformation_matrix = freg.register()
 
-img2_feature_reg_aligned = transform_img_with_tmat(img2, img2.shape, transformation_matrix)
-tma_scan_f_R=img2_feature_reg_aligned
+# img2_feature_reg_aligned = transform_img_with_tmat(img2, img2.shape, transformation_matrix)
+# tma_scan_f_R=img2_feature_reg_aligned
 
 
-from microaligner import OptFlowRegistrator, Warper 
-ofreg = OptFlowRegistrator()
-ofreg.ref_img = img1
-ofreg.mov_img = img2
-flow_map = ofreg.register()
+# from microaligner import OptFlowRegistrator, Warper 
+# ofreg = OptFlowRegistrator()
+# ofreg.ref_img = img1
+# ofreg.mov_img = img2
+# flow_map = ofreg.register()
 
-warper = Warper()
-warper.image = img2
-warper.flow = flow_map
-img2_optflow_reg_aligned = warper.warp()
-tma_scan_f_R=img2_optflow_reg_aligned
+# warper = Warper()
+# warper.image = img2
+# warper.flow = flow_map
+# img2_optflow_reg_aligned = warper.warp()
+# tma_scan_f_R=img2_optflow_reg_aligned
 
 
 #%%

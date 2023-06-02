@@ -42,13 +42,13 @@ plt.show()
 
 #%%
 
-img1=tma_scan_f
-img2=tma_scan_f
+# img1=tma_scan_f
+# img2=tma_scan_f
 
-from microaligner import FeatureRegistrator, transform_img_with_tmat
-freg = FeatureRegistrator()
-freg.ref_img = img1
-freg.mov_img = img2
-transformation_matrix = freg.register()
+# from microaligner import FeatureRegistrator, transform_img_with_tmat
+# freg = FeatureRegistrator()
+# freg.ref_img = img1
+# freg.mov_img = img2
+# transformation_matrix = freg.register()
 
-img2_feature_reg_aligned = transform_img_with_tmat(img2, img2.shape, transformation_matrix)
+# img2_feature_reg_aligned = transform_img_with_tmat(img2, img2.shape, transformation_matrix)

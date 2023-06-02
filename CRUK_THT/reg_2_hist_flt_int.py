@@ -25,6 +25,7 @@ from scipy import ndimage as ndi
 import scipy
 import cv2
 
+from skimage.metrics import structural_similarity as ssim
 
 #%%
 
@@ -425,11 +426,16 @@ def Affine_SITK_2D(Fixed,Moving,FixedSpacing,MovingSpacing):
     # Moving_sitk_registered = sitk.Resample(Moving_sitk, Fixed_sitk, 
     #                                               final_transform_v4, 
     #                                               sitk.sitkBSpline, 0.0, 
+    #                                               Fixed_sitk.GetPixelID())
+    
+    # Moving_sitk_registered = sitk.Resample(Moving_sitk, Fixed_sitk, 
+    #                                               final_transform_v4, 
+    #                                               sitk.sitkLinear, 0.0, 
     #                                               Moving_sitk.GetPixelID())
     
     Moving_sitk_registered = sitk.Resample(Moving_sitk, Fixed_sitk, 
                                                   final_transform_v4, 
-                                                  sitk.sitkLinear, 0.0, 
+                                                  sitk.sitkBSpline, 0.0, 
                                                   Moving_sitk.GetPixelID())
     
     
@@ -437,13 +443,50 @@ def Affine_SITK_2D(Fixed,Moving,FixedSpacing,MovingSpacing):
     # Moving_sitk_registered=np.transpose(Moving_sitk_registered,(1,2,0))
     
     return Moving_sitk_registered,registration_method,final_transform_v4
+
+def Affine_OpCV_2D(Fixed_sitk,Moving_sitk):
+    sz=Fixed_sitk.shape
+    warp_mode = cv2.MOTION_AFFINE
+
+    warp_matrix = np.eye(2, 3, dtype=np.float32)
+
+    number_of_iterations = 50000
+
+
+    termination_eps = 1e-10
+
+    criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, number_of_iterations,  termination_eps)
+
+    (cc, warp_matrix) = cv2.findTransformECC (tma_int_f_N,Moving_sitk,warp_matrix, warp_mode, criteria)
+
+    # # warp_matrix=cv2.getAffine
+
+    Moving_sitk_registered = cv2.warpAffine(Moving_sitk, warp_matrix, (sz[1],sz[0]), flags=cv2.INTER_LINEAR + cv2.WARP_INVERSE_MAP)
+    
+    return Moving_sitk_registered, warp_matrix, cc
+
 #%%
 
-# cx=0.22 # Unit: micrometer
-# cy=0.22
+
+
+
+flt_h=sz[0]
+flt_w=sz[1]
+tma_scan =  cv2.imread("/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour/Row-5_Col-11_20230224/Row-5_Col-11.tif")
+
+
+
+cx_p=0.22 # Unit: micrometer
+cy_p=0.22
 
 # px=95 # Unit: micrometer
 # py=95
+phy=tma_scan.shape
+phy_x=phy[0]*cx_p
+phy_y=phy[1]*cy_p
+
+px_p=phy_x/flt_h
+py_p=phy_x/flt_w
 
 cx=1
 cy=1
@@ -451,9 +494,6 @@ px=1
 py=1
 
 
-flt_h=sz[0]
-flt_w=sz[1]
-tma_scan =  cv2.imread("/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour/Row-5_Col-11_20230224/Row-5_Col-11.tif")
 tma_scan=cv2.resize(tma_scan, (flt_h,flt_w))
 
 # tma_scan[tma_scan==255]=0
@@ -468,7 +508,9 @@ tma_scan_f[tma_scan_f>200]=0
 
 Fixed=tma_int_f_N
 Moving=tma_scan_f
+# Fixed=Moving
 FixedSpacing=[cx,cy]
+MovingSpacing=[px_p,py_p]
 MovingSpacing=[px,py]
 
 # Moving=tma_int_f_N
@@ -476,36 +518,65 @@ MovingSpacing=[px,py]
 # MovingSpacing=[cx,cy]
 # FixedSpacing=[px,py]
 
-Moving_sitk_registered,registration_method,final_transform_v4=Rigid_SITK_2D(Fixed,Moving,FixedSpacing,MovingSpacing)
-DIff=np.abs(Moving_sitk_registered-Moving)
+Moving_R,registration_method,final_transform_v4=Rigid_SITK_2D(Fixed,Moving,FixedSpacing,MovingSpacing)
+Moving_R=Moving_R.astype('uint8')
+DIff=np.abs(Moving_R-Moving)
 RE=np.sum(DIff)
+(RE,DIff1)=ssim(Fixed, Moving_R, full=True)
+# (RE,DIff1)=ssim(Fixed, Moving_R, full=False)
 plt.figure(1),
 plt.subplot(2,2,1)
 plt.imshow(Moving,cmap='gray')
 plt.subplot(2,2,2)
 plt.imshow(Fixed,cmap='gray')
 plt.subplot(2,2,3)
-plt.imshow(Moving_sitk_registered,cmap='gray')
+plt.imshow(Moving_R,cmap='gray')
 plt.subplot(2,2,4)
 plt.imshow(DIff,cmap='gray')
 plt.title(RE)
 plt.show()
 
-Moving_sitk_registered,registration_method,final_transform_v4=Affine_SITK_2D(Fixed,Moving,FixedSpacing,MovingSpacing)
-DIff=np.abs(Moving_sitk_registered-Moving)
+
+Moving_R,registration_method,final_transform_v4=Affine_SITK_2D(Fixed,Moving,FixedSpacing,MovingSpacing)
+Moving_R=Moving_R.astype('uint8')
+DIff=np.abs(Moving_R-Moving)
 RE=np.sum(DIff)
+(RE,DIff1)=ssim(Fixed, Moving_R, full=True)
+# (RE,DIff1)=ssim(Fixed, Moving_R, full=False)
 plt.figure(2),
 plt.subplot(2,2,1)
 plt.imshow(Moving,cmap='gray')
 plt.subplot(2,2,2)
 plt.imshow(Fixed,cmap='gray')
 plt.subplot(2,2,3)
-plt.imshow(Moving_sitk_registered,cmap='gray')
+plt.imshow(Moving_R,cmap='gray')
 plt.subplot(2,2,4)
 plt.imshow(DIff,cmap='gray')
 plt.title(RE)
 plt.show()
 
+
+# Error would just show the displacements.
+# SSIM would give the closeness to the Fixed Image considering from different modality
+
+
+Moving_R, warp_matrix, cc=Affine_OpCV_2D(Fixed,Moving)
+Moving_R=Moving_R.astype('uint8')
+DIff=np.abs(Moving_R-Moving)
+RE=np.sum(DIff)
+(RE,DIff1)=ssim(Fixed, Moving_R, full=True)
+# (RE,DIff1)=ssim(Fixed, Moving_R, full=False)
+plt.figure(3),
+plt.subplot(2,2,1)
+plt.imshow(Moving,cmap='gray')
+plt.subplot(2,2,2)
+plt.imshow(Fixed,cmap='gray')
+plt.subplot(2,2,3)
+plt.imshow(Moving_R,cmap='gray')
+plt.subplot(2,2,4)
+plt.imshow(DIff,cmap='gray')
+plt.title(RE)
+plt.show()
 
 #%%
 # plt.figure(1),
@@ -514,7 +585,7 @@ plt.show()
 # plt.subplot(1,4,2)
 # plt.imshow(Fixed,cmap='gray')
 # plt.subplot(1,4,3)
-# plt.imshow(Moving_sitk_registered,cmap='gray')
+# plt.imshow(Moving_R,cmap='gray')
 # plt.subplot(1,4,4)
 # plt.imshow(DIff,cmap='gray')
 # plt.show()
