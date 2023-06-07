@@ -29,8 +29,9 @@ from skimage.metrics import structural_similarity as ssim
 
 #%%
 
-mypath='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour/Row-5_Col-11_20230224/FLT_IMG_DIR_4'
+# mypath='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour/Row-5_Col-11_20230224/FLT_IMG_DIR_4'
 # mypath='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour/Row-1_Col-9_20230222/FLT_IMG_DIR'
+mypath='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour/Row-4_Col-7_20230220/FLT_IMG_DIR'
 
 # onlyfiles = [join(mypath, f) for f in listdir(mypath) if isdir(join(mypath, f))]
 onlyfiles = [join(mypath, f) for f in listdir(mypath)]
@@ -235,6 +236,7 @@ sz=tma_int_f.shape
 tma_int_f_N = np.zeros_like(tma_int_f)
 tma_int_f_N = np.round(cv2.normalize(tma_int_f,  tma_int_f_N, 0, 255, cv2.NORM_MINMAX))
 tma_int_f_N=tma_int_f_N.astype('uint8')
+cv2.imwrite('Core_Int_SBM_2.png', tma_int_f_N)
 
 #%%
 
@@ -457,7 +459,7 @@ def Affine_OpCV_2D(Fixed_sitk,Moving_sitk):
 
     criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, number_of_iterations,  termination_eps)
 
-    (cc, warp_matrix) = cv2.findTransformECC (tma_int_f_N,Moving_sitk,warp_matrix, warp_mode, criteria)
+    (cc, warp_matrix) = cv2.findTransformECC (Fixed_sitk,Moving_sitk,warp_matrix, warp_mode, criteria)
 
     # # warp_matrix=cv2.getAffine
 

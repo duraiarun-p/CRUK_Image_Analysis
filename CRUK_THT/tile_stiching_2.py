@@ -22,13 +22,14 @@ from os.path import join, isdir
 from timeit import default_timer as timer
 from scipy import ndimage as ndi
 import imageio
-from xtiff import to_tiff
+# from xtiff import to_tiff
 
 import cv2
 #%%
 
-mypath='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour/Row-5_Col-11_20230224/FLT_IMG_DIR_4'
+# mypath='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour/Row-5_Col-11_20230224/FLT_IMG_DIR_4'
 # mypath='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour/Row-1_Col-9_20230222/FLT_IMG_DIR'
+mypath='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour/Row-4_Col-7_20230220/FLT_IMG_DIR'
 
 # onlyfiles = [join(mypath, f) for f in listdir(mypath) if isdir(join(mypath, f))]
 onlyfiles = [join(mypath, f) for f in listdir(mypath)]
@@ -53,12 +54,12 @@ for tile_file in range(onlyfiles_len):
     img_int=np.moveaxis(img_int, -1, 0)
     
     # filename=str(tile_file)+'.tiff'
-    filename='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/CRUK_THT/Test_Output/Tiling/Tile_'+str(tile_file+1)+'.png'
+    filename='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/CRUK_THT/Test_Output/Tiling/Row-4_Col-7_20230220/Tile_'+str(tile_file+1)+'.png'
     # Documents/PyWS_CRUK/CRUK_Image_Analysis/CRUK_THT/Test_Output/Tiling
     img_int_sl=np.sum(img_int[:,:,:],axis=0)
     imageio.imwrite(filename,img_int_sl)
     
-    filename1='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/CRUK_THT/Test_Output/Tiling/Spec1_'+str(tile_file+1)+'.png'
+    filename1='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/CRUK_THT/Test_Output/Tiling/Row-4_Col-7_20230220/Spec1_'+str(tile_file+1)+'.png'
     img_flt_sl=img_flt[-1,:,:]
     imageio.imwrite(filename1,img_flt_sl)
     flt_cube_list.append(img_flt)
