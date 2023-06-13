@@ -262,6 +262,16 @@ bin_spec_res_1=resample_fn_2(bin_spec,3)
 bin_spec_res_2=resample_fn_2(bin_spec,5)
 bin_spec_res_3=resample_fn_2(bin_spec,11)
 bin_spec_res_4=resample_fn_2(bin_spec,15)
+
+decimate_factor=15
+bin_spec_res_1_bin=resample_fn_2(bin_spec,decimate_factor)
+spec_len_new=len(bin_spec_res_1_bin)
+
+wave_spectrum=np.linspace(500, 780,bin_size[3])
+# wave_samples_decimated=bin_size[3]//decimate_factor
+wave_spectrum_new = np.linspace(500, 780, spec_len_new)
+
+
 #%%
 
 plt.figure(3)
@@ -272,7 +282,7 @@ plt.ylabel('Intensity (counts)')
 plt.legend('raw')
 plt.title('Intensity spectrum in a location at a time instant')
 plt.show()
-plt.savefig('band.png')
+# plt.savefig('band.png')
 
 plt.figure(4)
 plt.plot(bin_spec_res_1)
@@ -284,7 +294,7 @@ plt.xlabel('$\lambda$ (nm)')
 plt.ylabel('Intensity (counts)')
 plt.title('Band resampled using resampling with diffferent factor')
 plt.show()
-plt.savefig('band_resamp.png')
+# plt.savefig('band_resamp.png')
 
 bin_spec_res_1=resample_fn(bin_spec,3)
 bin_spec_res_2=resample_fn(bin_spec,5)
@@ -298,7 +308,7 @@ plt.plot(bin_spec_res_4)
 plt.legend(['3','5','10','15'])
 plt.title('Band resampled using decimation and filtering with diffferent factor')
 plt.show()
-plt.savefig('band_deci.png')
+# plt.savefig('band_deci.png')
 
 #%%
 
@@ -357,3 +367,28 @@ spectral_index=5
 # print(runtimeN0)
 #%%
 # bin_resp=bin_array2[255,255,:,101]
+spec_truncated=330
+decimate_factor=15
+bin_array2=np.zeros((bin_size[0],bin_size[1],bin_size[2],spec_len_new))
+for loc_row1 in range(bin_size[0]):
+    for loc_col1 in range(bin_size[1]):
+        for time_bin in range(bin_size[2]):
+            bin_spec1=bin_array1[loc_row1,loc_col1,time_bin,:spec_truncated]
+            
+            # bin_spec_res_2_bin=resample_fn(bin_spec1,decimate_factor)# Resampling
+            # choose bin based on selection
+            # bin_spec_res_2_bin=bin_spec1[spec_index]
+            bin_spec_res_2_bin=resample_fn_2(bin_spec1,decimate_factor)
+            bin_array2[loc_row1,loc_col1,time_bin,:]=bin_spec_res_2_bin
+#%%
+bin_resp_resampl_pre=np.squeeze(bin_array1[loc_row,loc_col,:,0])/np.max(bin_array1[loc_row,loc_col,:,0])
+bin_resp_resampl_pos=np.squeeze(bin_array2[loc_row,loc_col,:,0])/np.max(bin_array2[loc_row,loc_col,:,0])
+plt.figure(6)
+plt.plot(bin_resp_resampl_pre)
+plt.plot(bin_resp_resampl_pos)
+plt.xlabel('time bin (ns)')
+plt.ylabel('Normalised intensity')
+plt.legend(['pre','pos'])
+plt.title('Fluorescence decay before and after Band resampling')
+plt.show()
+plt.savefig('decay_post_resampling.png')

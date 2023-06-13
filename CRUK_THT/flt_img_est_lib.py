@@ -237,10 +237,10 @@ def flt_per_tile(matfile_list_path,decimate_factor,spec_resampled,spec_truncated
             for time_bin in range(bin_size[2]):
                 bin_spec1=bin_array1[loc_row1,loc_col1,time_bin,:spec_truncated]
                 
-                bin_spec_res_2_bin=resample_fn(bin_spec1,decimate_factor)# Resampling
+                # bin_spec_res_2_bin=resample_fn(bin_spec1,decimate_factor)# Decimation
                 # choose bin based on selection
                 # bin_spec_res_2_bin=bin_spec1[spec_index]
-                # bin_spec_res_2_bin=resample_fn_2(bin_spec1,decimate_factor)
+                bin_spec_res_2_bin=resample_fn_2(bin_spec1,decimate_factor)# Resampling
                 bin_array2[loc_row1,loc_col1,time_bin,:]=bin_spec_res_2_bin
     runtimeN0=(timer()-start_time_0)/60
     print('Band resampling Loop %s'%runtimeN0)
