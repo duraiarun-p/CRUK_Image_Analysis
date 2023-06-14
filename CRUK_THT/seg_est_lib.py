@@ -25,6 +25,7 @@ from timeit import default_timer as timer
 from scipy import ndimage as ndi
 import imageio
 # from xtiff import to_tiff
+import cv2
 
 #%%
 
@@ -233,3 +234,43 @@ def comp_tiling(mypath):
     return tma_int_f,cube_flt_f,cube_int_f
 
 #%%
+def mosaic_masking(tma_int_f,cube_flt_f,cube_int_f,blur_kernel_width,mask_kernel_width):
+    img = cv2.blur(tma_int_f,(blur_kernel_width,blur_kernel_width))
+    # img=img.astype('uint8')
+    # mask = cv2.Canny(img,127,255)
+
+    h, w = img.shape[:2]
+    mask_kernel = np.zeros((h+2, w+2), np.uint8)
+    ret,mask = cv2.threshold(img,np.mean(img)*0.5,np.max(img),cv2.THRESH_BINARY)
+    mask=mask.astype('uint8')
+    # mask_fill=mask
+    # cv2.floodFill(mask_fill, mask_kernel, (0,0), 255)
+    # mask_fill_inv = cv2.bitwise_not(mask_fill)
+    # opening = mask & mask_fill_inv
+    opening=mask
+
+    # histr = cv2.calcHist([img],[0],None,[256],[np.min(img),np.max(img)])
+        
+
+    # cnts = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    # cnts = cnts[0] if len(cnts) == 2 else cnts[1]
+
+    # for c in cnts:
+    #     cv2.drawContours(mask,[c], 0, (255,255,255), -1)
+
+    # kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (15,15))
+    # opening = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel, iterations=2)
+
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (mask_kernel_width,mask_kernel_width))
+    closing = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+    mask_f=closing.astype('float64')
+    mask_f[mask_f>0]=1
+    tma_int_f_1=tma_int_f*opening
+    cube_flt_f_1=np.zeros_like(cube_flt_f)
+    cube_int_f_1=np.zeros_like(cube_int_f)
+    cz=cube_flt_f.shape
+    for page in range(cz[2]):
+        cube_flt_f_1[:,:,page]=cube_flt_f[:,:,page]*mask_f
+        cube_int_f_1[:,:,page]=cube_int_f[:,:,page]*mask_f
+        
+    return tma_int_f_1,cube_flt_f_1,cube_int_f_1
