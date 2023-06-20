@@ -17,7 +17,7 @@ import numpy as np
 
 #%% Data loading and tiling
 mypath='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour/Row-5_Col-11_20230224/FLT_IMG_DIR_4'
-# mypath='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour/Row-1_Col-9_20230222/FLT_IMG_DIR'
+mypath='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour/Row-1_Col-9_20230222/FLT_IMG_DIR'
 # mypath='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour/Row-4_Col-7_20230220/FLT_IMG_DIR'
 
 # onlyfiles = [join(mypath, f) for f in listdir(mypath) if isdir(join(mypath, f))]
@@ -51,7 +51,7 @@ tma_int_f_1,cube_flt_f_1,cube_int_f_1=mosaic_masking(tma_int_f,cube_flt_f,cube_i
 
 
 #%%
-page=0
+page=7
 plt.figure(3)
 plt.subplot(1,3,1)
 plt.imshow(tma_int_f_1,cmap='gray')
