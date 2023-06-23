@@ -44,7 +44,7 @@ from timeit import default_timer as timer
 
 from lifetime_estimate_lib_THT import life_time_image_reconstruct_1_concurrent_1,life_time_image_reconstruct_1_concurrent,life_time_image_reconstruct_4_concurrent,life_time_image_reconstruct_2_concurrent,life_time_image_reconstruct_3_concurrent
 
-
+from flt_img_est_lib import resample_fn_2
 
 #%%
 
@@ -54,15 +54,17 @@ n_cores = multiprocessing.cpu_count()
 "Windows way to pass path as an argument"
 # mypath = str(r"C:\Users\CRUK EDD\Documents\Python_Scripts\Test_Data\Normal\Row-1_Col-1_20230303").replace("\\", "\\\\")
 # mypath = str(r"C:\Users\CRUK EDD\Documents\Python_Scripts\Test_Data\Tumour\Row-1_Col-1_20230214").replace("\\", "\\\\")
-mypath = '/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Normal/Row-1_Col-1_20230303'
+# mypath = '/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Normal/Row-1_Col-1_20230303'
+mypath ='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-6_Col-10_20230223'
 
 # mypath = '/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour/Row-1_Col-1_20230214'
 # List of responses of all tiles
-onlyfiles = [join(mypath, f) for f in listdir(mypath) if isdir(join(mypath, f))]
+# onlyfiles = [join(mypath, f) for f in listdir(mypath) if isdir(join(mypath, f))]
+onlyfiles = [join(mypath, f) for f in listdir(mypath) if isdir(join(mypath, f)) and f.startswith('R')]
 onlyfiles.sort()
 
 # Mat file per tile
-tile_file=3
+tile_file=1
 matfile_list=listdir(onlyfiles[tile_file])
 #iterable tile
 matfile_list_path=join(onlyfiles[tile_file],matfile_list[0])#picking the mat file
@@ -108,6 +110,39 @@ bin_array=np.sum(bin_array0[:,:,:,spectral_index:spectral_index+spectral_span_su
 # Background subtraction
 # for time_bin in range(bin_size[time_index]):    
 #     bin_array[:,:,time_bin]=bin_array[:,:,time_bin]-bin_array_bck
+#%%
+bin_array1=np.zeros_like(bin_array0)
+start_time_0=timer()
+for spec_i in range(bin_size[-1]):
+    spectral_span=np.min([bin_size[3]-spec_i,spectral_span_sum])
+    # print(spectral_span)
+    bin_array1[:,:,:,spec_i]=np.sum(bin_array0[:,:,:,spec_i:spec_i+spectral_span],-1)
+    
+decimate_factor=15
+spec_resampled=20# Change it to 20
+spec_truncated=330
+spectra_len=bin_size[-1]
+
+bin_spec=bin_array1[255,255,14,:spec_truncated]
+# bin_spec_res_1_bin=sig.decimate(bin_spec,decimate_factor,ftype='fir')
+bin_spec_res_1_bin=resample_fn_2(bin_spec,decimate_factor)
+spec_len_new=len(bin_spec_res_1_bin)
+wave_spectrum=np.linspace(500, 780,bin_size[3])
+# wave_samples_decimated=bin_size[3]//decimate_factor
+wave_spectrum_new = np.linspace(500, wave_spectrum[spec_truncated], spec_len_new)
+
+bin_array2=np.zeros((bin_size[0],bin_size[1],bin_size[2],spec_len_new))
+for loc_row1 in range(bin_size[0]):
+    for loc_col1 in range(bin_size[1]):
+        for time_bin in range(bin_size[2]):
+            bin_spec1=bin_array1[loc_row1,loc_col1,time_bin,:spec_truncated]
+            
+            # bin_spec_res_2_bin=resample_fn(bin_spec1,decimate_factor)# Decimation
+            # choose bin based on selection
+            # bin_spec_res_2_bin=bin_spec1[spec_index]
+            bin_spec_res_2_bin=resample_fn_2(bin_spec1,decimate_factor)# Resampling
+            bin_array2[loc_row1,loc_col1,time_bin,:]=bin_spec_res_2_bin
+runtimeN0=(timer()-start_time_0)/60
 
 #%% An attempt to parallelize the loops
 
@@ -116,10 +151,10 @@ bin_array=np.sum(bin_array0[:,:,:,spectral_index:spectral_index+spectral_span_su
 #    for _ in range(cycles):
 #        image = image.filter(ImageFilter.MaxFilter(3))
 #    return np.array(image)
+spectral_index=-3
+bin_int=bin_array2[:,:,:,spectral_index]# only for spectral span = 0
 
-# bin_int=bin_array0[:,:,:,spectral_index]# only for spectral span = 0
-
-bin_int=bin_array[:,:,:]
+# bin_int=bin_array[:,:,:]
 
 # bin_int_array_4_mask=bin_array[:,:,0]
 
@@ -152,11 +187,11 @@ bin_int_array_mask = ndi.binary_fill_holes(bin_int_array_mask)
     
 
 
-# plt.figure(26)
-# plt.imshow(bin_int_array1,cmap='gray')
-# plt.colorbar()
-# plt.show()
-# plt.title('Intensity')
+plt.figure(26)
+plt.imshow(bin_int_array,cmap='gray')
+plt.colorbar()
+plt.show()
+plt.title('Intensity')
 # plt.figure(27)
 # plt.imshow(bin_int_array_mask,cmap='gray')
 # plt.colorbar()
@@ -167,14 +202,14 @@ bin_int_array_mask = ndi.binary_fill_holes(bin_int_array_mask)
 # plt.colorbar()
 # plt.show()
 # plt.title('Intensity_mask')
-#%%
+##%%
 
 
 
 
 
 
-#%%
+##%%
 bin_list=[]
 bin_log_list=[]
 bin_log_list_partial=[]
@@ -227,15 +262,18 @@ tau_1_array,r_1=life_time_image_reconstruct_1_concurrent(frame_size,bin_Len,bin_
 # tau_1_array=sig.medfilt2d(tau_1_array)
 # if (np.max(tau_1_array)-np.min(tau_1_array))/np.mean(tau_1_array)>2:
 #     tau_1_array[tau_1_array>np.mean(tau_1_array)+((np.max(tau_1_array)-np.min(tau_1_array))/20)]=0
-tau_1_array[tau_1_array>np.median(tau_1_array)*5]=0 # For visualisation
+
+# tau_1_array[tau_1_array>np.median(tau_1_array)*50]=0 # For visualisation
+tau_1_array[tau_1_array>5]=0
 # tau_1_array=sig.medfilt2d(tau_1_array)
+
 tau_1_array1=sig.medfilt2d(tau_1_array)
 # tau_1_array1 = ma.masked_array(tau_1_array, bin_int_array_mask)
 # tau_1_array1 = np.multiply(tau_1_array, bin_int_array_mask)
 # tau_1,r_1=life_time_image_reconstruct_1_gpu(frame_size,bin_Len,bin_list,time_line)
 runtimeN1=(timer()-start_time_0)/60
 
-#%%
+##%%
 plt.figure(321)
 # plt.subplot(121)
 # plt.imshow(tau_1_array,cmap='gray')

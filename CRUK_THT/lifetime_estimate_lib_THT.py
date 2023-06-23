@@ -49,18 +49,32 @@ def f1(t,popt):
 
 def flt_est_cf_exp(bin_resp_selected,time_line_selected):
     # popt, pcov = curve_fit(lambda t, a, b, c: a * np.exp(b * -t) - c, bin_resp_selected, time_line_selected,maxfev=50000)
-    popt, pcov = curve_fit(lambda t, a, b, c: a * np.exp(b * -t) - c, time_line_selected, bin_resp_selected,maxfev=50000)
+    try:
+        popt, pcov = curve_fit(lambda t, a, b, c: a * np.exp(b * -t) - c, time_line_selected, bin_resp_selected,maxfev=50000)
+        b_inv=1/abs(popt[1])
+    except:
+        # popt[0]=0
+        # popt[1]=0
+        # popt[2]=0
+        popt=[0,0,0]
+        b_inv=0
+    # else:
+    #     # popt[0]=0
+    #     # popt[1]=0
+    #     # popt[2]=0
+    #     popt=[0,0,0]
+    #     b_inv=0
     # popt, pcov = curve_fit(f1, time_bin_indices_selected, bin_resp_selected)
-    a = popt[0]
-    b = popt[1]
-    c = popt[2]
+    # a = popt[0]
+    # b = popt[1]
+    # c = popt[2]
     residuals = bin_resp_selected- f1(time_line_selected, popt)
     # residuals = bin_resp_selected - (a * np.exp(b * time_bin_indices_selected) + c)
     ss_res = np.sum(residuals**2)
     ss_tot = np.sum((bin_resp_selected-np.mean(bin_resp_selected))**2)
     r_squared = 1 - (ss_res / ss_tot)
     # return abs(b), r_squared
-    return 1/abs(b), r_squared
+    return b_inv, r_squared
 
 def life_time_est_cf_exp(bin_resp,time_line,bin_size,time_indices,time_index):
     # time_index_max=bin_resp.argmax()

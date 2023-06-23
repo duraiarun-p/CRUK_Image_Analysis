@@ -29,7 +29,7 @@ from scipy import ndimage as ndi
 import concurrent.futures
 import multiprocessing
 
-from lifetime_estimate_lib_THT import life_time_image_reconstruct_1_concurrent,prepare_data_list,prepare_data_list_wo_flip
+from lifetime_estimate_lib_THT import life_time_image_reconstruct_1_concurrent,prepare_data_list,life_time_image_reconstruct_4_concurrent,prepare_data_list_log
 #%%
 
 def resample_fn(bin_spec_x,decimate_factor_x):
@@ -58,10 +58,18 @@ def flt_img_exp(bin_array2,spectral_index,time_index,bin_size,frame_size,time_in
     n_cores=multiprocessing.cpu_count()
     
     bin_Len,bin_list,time_list,bin_index_list=prepare_data_list(frame_size,bin_array,bin_size,time_index,time_indices,time_line)
+    # bin_Len,bin_list,time_list,bin_index_list,bin_log_list_partial,time_list_partial=prepare_data_list_log(frame_size,bin_array,bin_size,time_index,time_indices,time_line)
     
     start_time_0=timer()
     # tau_1_array=life_time_image_reconstruct_1(frame_size,bin_Len,bin_list,time_line,bin_index_list,n_cores)  
     tau_1_array,r_1=life_time_image_reconstruct_1_concurrent(frame_size,bin_Len,bin_list,time_list,bin_index_list,n_cores)
+    
+    
+    
+    
+    # tau_1_array,r_1=life_time_image_reconstruct_4_concurrent(frame_size,bin_Len,bin_log_list_partial,time_list_partial,bin_index_list,n_cores)
+    
+    
     # tau_1_array=sig.medfilt2d(tau_1_array)
     # if (np.max(tau_1_array)-np.min(tau_1_array))/np.mean(tau_1_array)>2:
     #     tau_1_array[tau_1_array>np.mean(tau_1_array)+((np.max(tau_1_array)-np.min(tau_1_array))/20)]=0

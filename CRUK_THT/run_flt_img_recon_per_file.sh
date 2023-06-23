@@ -9,7 +9,7 @@ echo "Current working directory"
 pwd
 touch normal_log.txt
 #cd /mnt/local_share/TMA/FS-FLIM/raw/Normal_1B
-cd /home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour/Row-5_Col-11_20230224
+cd /home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-2_Col-3_20230216
 #ls -l
 MYPATH_NORMAL=$(pwd)
 #$MYPATH_NORMAL="/mnt/local_share/TMA/FS-FLIM/raw/Normal_1B"
@@ -19,8 +19,8 @@ $NORMAL
 TIME_NOW=$(date)
 #echo $NORMAL >> /home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/CRUK_THT/tunour_log.txt
 MYPATH_NORMAL_CORE=$(pwd)
-mkdir -p FLT_IMG_DIR_4
-FLT_IMG_DIR_NAME=FLT_IMG_DIR_4
+mkdir -p FLT_IMG_DIR_1
+FLT_IMG_DIR_NAME=FLT_IMG_DIR_1
 MYPATH_NORMAL_CORE_OUTPUT="$MYPATH_NORMAL_CORE/$FLT_IMG_DIR_NAME"
 echo $NORMAL
 echo "Executing Python Script"
