@@ -17,7 +17,7 @@ for core_i = 1 : core_Folder_len
     core_Folder_File=strcat(core_Folder(core_Folder_len).folder,'/',core_Folder(core_i).name,'/');
 
     disp(core_Folder_File)
-    flt_recon_core_mat(filePath,core_Folder_File,numberoflambdas,binToFit);
+    flt_recon_core_mat(core_Folder_File,currentworkingFolder,numberoflambdas,binToFit);
 
     cd(currentworkingFolder)
 end
