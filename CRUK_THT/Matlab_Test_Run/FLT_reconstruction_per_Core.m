@@ -177,6 +177,7 @@ for file_ind=1:(ind-1)
         lifetimeImageData{imageNumber} = lifetimeImageData1;
         lifetimeAlphaData{imageNumber} = lifetimeAlphaData1;
         time_LS(imageNumber)=toc;
+        disp("fitting complete - execution time: " + time_LS(imageNumber) + " seconds");
 
 %         tic;
 %         [allIntensityImages2,lifetimeImageData2,lifetimeAlphaData2]=Analysis_EXPfitting_per_tile(bins_array_3,binToFit,histMode,frame_size);
@@ -193,7 +194,7 @@ for file_ind=1:(ind-1)
 %         time_FEXP(imageNumber)=toc;
 
         matfilename=[outputdir,num2str(file_ind),'.mat'];
-    save(matfilename,'-v7.3')
+    save(matfilename,'allIntensityImages','lifetimeImageData','lifetimeAlphaData','-v7.3')
 %     end
 end
 completed_time=toc/60;
