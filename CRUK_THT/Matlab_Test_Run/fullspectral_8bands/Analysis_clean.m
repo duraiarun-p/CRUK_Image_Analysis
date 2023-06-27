@@ -1,5 +1,6 @@
 %%test analysis script
 clc;clear;close all;
+addpath('/home/cruk/Documents/Gpufit-build/matlab');
 %% SETUP PERAMITERS
 
 % Temporal resolution
@@ -9,8 +10,8 @@ n_bins = 16;
 
 % % Load file path and find number of folders - 1 level deap to workspaces!!
 currentFolder = pwd;
-filePath = uigetdir; % User Interaction Dialogue
-
+%filePath = uigetdir; % User Interaction Dialogue
+filePath = '/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-2_20230215';
 
 %setnumberofrows/colums - to match data as recorded, this will effect the
 %number of files read in and the naming of output files
@@ -21,7 +22,8 @@ filePath = uigetdir; % User Interaction Dialogue
 
 % Extracting bin array parameters directly from the data
 file_list=dir(filePath);
-first_file_path=strcat(file_list(end).folder,'\',file_list(end).name);
+% first_file_path=strcat(file_list(end).folder,'\',file_list(end).name);% Windows
+first_file_path=strcat(file_list(end).folder,'/',file_list(end).name);% Linux
 first_file_mat_paths=dir(first_file_path);
 
 
@@ -35,7 +37,8 @@ data_file_index=find(contains(file_list_names,'Row')); % data file indices
 numberofNondataFolders=abs(length(data_file_index)-length(file_list_names));
 
 
-first_file_mat_file=load([first_file_path,'\','workspace.frame_1.mat']); % To continue with data acquistion convention
+% first_file_mat_file=load([first_file_path,'\','workspace.frame_1.mat']); % Windows To continue with data acquistion convention
+first_file_mat_file=load([first_file_path,'/','workspace.frame_1.mat']); % Linux To continue with data acquistion convention
 % Sub routine to extract number of rows and column
 mat_file_name=file_list(end).name;
 newStr = split(mat_file_name,'_');
@@ -240,6 +243,9 @@ for file_ind=1:(ind-1)
         %Calculate wavelength axis
 %         [wavelengths,wavenumbers] = Wavelength_Calculator();
         
+       % Peak time bin selection
+       
+
         disp('Performing Lifetime Calculations')
         % do lifetime fit calculations
         [parameters_cpu, selected_data_for_subtraction, bins_array_movsum_selected_reshaped] = test_LM_fitting_linear_gw(bins_array_3, histMode, spectral_pixel_span, binToFit1, binToFit2, frame_size, n_bins, n_spectrum);

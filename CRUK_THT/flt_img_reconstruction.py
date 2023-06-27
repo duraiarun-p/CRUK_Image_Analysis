@@ -25,8 +25,8 @@ from scipy.io import savemat
 #%%
 # mypath = '/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Normal/Row-1_Col-1_20230303'
 # mypath = '/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour/Row-1_Col-1_20230214'
-mypath ='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-6_Col-10_20230223'
-# mypath = '/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-2_Col-3_20230216'
+# mypath ='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-6_Col-10_20230223'
+mypath = '/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-2_Col-3_20230216'
 
 # mypath ='/run/user/1000/gvfs/smb-share:server=cmvm.datastore.ed.ac.uk,share=cmvm/scs/groups/kdhaliwa-CRUKEDD/TMA/FS-FLIM/raw/Normal_1B/Row-1_Col-1_20230303'
 
@@ -38,7 +38,7 @@ if not os.path.exists(save_path):
     os.makedirs(save_path)
 # Make a new directory for each tissue core mkdir tissue_core_file_name
 
-tile_file=0
+tile_file=-1
 decimate_factor=15
 spec_resampled=20
 spec_truncated=330

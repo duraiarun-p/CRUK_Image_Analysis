@@ -28,7 +28,19 @@ bin_16_array_mean = mean(bin_16_array, 2);
 
 %disp('Getting selected bins for background');
 bins_array_selected = reshape(bins_array_3, n_spectrum, n_bins, frame_size*frame_size);
-bins_array_selected = bins_array_selected(:, selected_bins, :);
+
+% Automatic timebin selection
+for speci=1:n_spectrum
+     binresp1=squeeze(bins_array_selected(speci,:,:));
+     [timebin_max,timebin_max_ind]=max(binresp1,[],1);
+     timebin_max_ind_st=timebin_max_ind-3;
+     timebin_max_ind_st(timebin_max_ind_st<0)=1;
+     timebin_max_ind(timebin_max_ind_st<0)=4;
+end
+bins_array_selected=bins_array_selected(:,timebin_max_ind_st:timebin_max_ind,:);
+
+%bins_array_selected = bins_array_selected(:, selected_bins, :);
+
 
 % Subtract background
 for j = 1:size(bins_array_selected, 3)
@@ -75,9 +87,9 @@ selected_data_for_subtraction = selected_data_for_fitting;
 selected_data_for_fitting = log(selected_data_for_fitting);
 selected_data_for_fitting = real(selected_data_for_fitting);
 
-%disp('Cpufit linear 1D fitting');
+disp('Cpufit linear 1D fitting');
 [parameters_cpu, states_cpu, number_iterations_cpu, execution_time_cpu] = ...
-    LM_fitting(selected_data_for_fitting, binWidth, ModelID.LINEAR_1D, 1);
+    LM_fitting(selected_data_for_fitting, binWidth, ModelID.LINEAR_1D, 1);% onGPU flag = 0/1 for cpu/gpu
 parameters_cpu(2,:) = 1 ./ parameters_cpu(2,:);
 disp("fitting complete - execution time: " + execution_time_cpu + " seconds");
 

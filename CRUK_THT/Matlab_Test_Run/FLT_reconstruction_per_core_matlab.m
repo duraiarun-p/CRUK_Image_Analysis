@@ -7,15 +7,24 @@ no_of_spectral_channels=310;
 numberoflambdas=no_of_spectral_channels;
 binToFit=[12,15];
 binToFit2=[1,15];
-outputdir='C:\Users\CRUK EDD\Documents\MATLAB\Test_Output\';
+% outputdir='C:\Users\CRUK EDD\Documents\MATLAB\Test_Output\';
 %% Fit analysis
 currentFolder = pwd;
-filePath = uigetdir; 
+% filePath = uigetdir; 
+filePath = '/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-2_20230215/';
+
+outputdir=strcat(filePath,'Mat_output/');
+if isfolder(outputdir)==0
+    mkdir(outputdir);
+end
 
 %%
 
 file_list=dir(filePath);
-first_file_path=strcat(file_list(end).folder,'\',file_list(end).name);
+[~,ind]=sort({file_list.name});
+file_list = file_list(ind);
+% first_file_path=strcat(file_list(end).folder,'\',file_list(end).name);% Windows
+first_file_path=strcat(file_list(end).folder,'/',file_list(end).name);% Linux
 % first_file_mat_paths=dir(first_file_path);
 n_bins = 16;
 
@@ -30,7 +39,8 @@ data_file_index=find(contains(file_list_names,'Row')); % data file indices
 numberofNondataFolders=abs(length(data_file_index)-length(file_list_names));
 
 
-first_file_mat_file=load([first_file_path,'\','workspace.frame_1.mat']); % To continue with data acquistion convention
+% first_file_mat_file=load([first_file_path,'\','workspace.frame_1.mat']); % To continue with data acquistion convention
+first_file_mat_file=load([first_file_path,'/','workspace.frame_1.mat']); % Linux To continue with data acquistion convention
 % Sub routine to extract number of rows and column
 mat_file_name=file_list(end).name;
 newStr = split(mat_file_name,'_');
@@ -135,12 +145,17 @@ for r = 1:numberofRows
 end
 
 all_files = dir(filePath);
+file_list_names={all_files.name}; % Get file names into cell array
+% data_file_index=find(contains(all_files,'Row')); % data file indices
+all_files(1:numberofNondataFolders)=[];
+
 all_files = struct2table(all_files);
 all_files = sortrows(all_files, 'name');
 all_files = table2struct(all_files);
 tic;
+all_files_len=length(all_files);
 % ind=2;
-for file_ind=1:(ind-1)
+for file_ind=1:all_files_len
         row=row_ind(file_ind);
         colum=col_ind(file_ind);
         disp('row')
@@ -178,20 +193,6 @@ for file_ind=1:(ind-1)
         lifetimeAlphaData{imageNumber} = lifetimeAlphaData1;
         time_LS(imageNumber)=toc;
         disp("fitting complete - execution time: " + time_LS(imageNumber) + " seconds");
-
-%         tic;
-%         [allIntensityImages2,lifetimeImageData2,lifetimeAlphaData2]=Analysis_EXPfitting_per_tile(bins_array_3,binToFit,histMode,frame_size);
-%         allIntensityImages_PEXP{imageNumber} = allIntensityImages2;
-%         lifetimeImageData_PEXP{imageNumber} = lifetimeImageData2;
-%         lifetimeAlphaData_PEXP{imageNumber} = lifetimeAlphaData2;
-%         time_PEXP(imageNumber)=toc;
-% 
-%         tic;
-%         [allIntensityImages3,lifetimeImageData3,lifetimeAlphaData3]=Analysis_EXPfitting_per_tile(bins_array_3,binToFit2,histMode,frame_size);
-%         allIntensityImages_FEXP{imageNumber} = allIntensityImages3;
-%         lifetimeImageData_FEXP{imageNumber} = lifetimeImageData3;
-%         lifetimeAlphaData_FEXP{imageNumber} = lifetimeAlphaData3;
-%         time_FEXP(imageNumber)=toc;
 
         matfilename=[outputdir,num2str(file_ind),'.mat'];
     % save(matfilename,'allIntensityImages','lifetimeImageData','lifetimeAlphaData','-v7.3')
