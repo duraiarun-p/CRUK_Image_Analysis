@@ -97,7 +97,7 @@ binToFit2 = binToFit(2);
 
         % Produce and save intensity images
 %         [intensity_image] = Intensity_Image_Summation(bins_array_3, frame_size_x);
-        intensity_image = sum(sum(bins_array_3, 1), 2);
+        intensity_image = sum(sum(bins_array_3, spectral_dimension_ind), temporal_dimension_ind);
 %         climit = 'auto';
 %         plotter(intensity_image, newFolderIntesnity, row, colum, climit)
         
