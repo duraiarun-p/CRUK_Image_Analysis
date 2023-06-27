@@ -87,7 +87,7 @@ selected_data_for_subtraction = selected_data_for_fitting;
 selected_data_for_fitting = log(selected_data_for_fitting);
 selected_data_for_fitting = real(selected_data_for_fitting);
 
-disp('Cpufit linear 1D fitting');
+disp('Linear 1D fitting');
 [parameters_cpu, states_cpu, number_iterations_cpu, execution_time_cpu] = ...
     LM_fitting(selected_data_for_fitting, binWidth, ModelID.LINEAR_1D, 1);% onGPU flag = 0/1 for cpu/gpu
 parameters_cpu(2,:) = 1 ./ parameters_cpu(2,:);

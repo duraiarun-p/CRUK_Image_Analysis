@@ -45,10 +45,12 @@ estimator_id = EstimatorID.LSE;
 user_info = single(linspace(0, number_points - 1, number_points)*binWidth);
 
 if isempty(onGPU) || onGPU == 0  % use cpu
+    disp('Cpu')
     [parameters, states, ~, number_iterations, execution_time] = ...
         cpufit(data, [], model_id, initial_parameters, tolerance, max_n_iterations, [], estimator_id, user_info);
 else  % use GPU
     assert(gpufit_cuda_available(), "No suitable GPU");
+    disp('Gpu')
     [parameters, states, ~, number_iterations, execution_time] = ...
         gpufit(data, [], model_id, initial_parameters, tolerance, max_n_iterations, [], estimator_id, user_info);
 end

@@ -16,4 +16,4 @@ filePath = '/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_
 flt_recon_core_mat(filePath,currentFolder,numberoflambdas,binToFit);
 %%
 
-completed_time=toc/60;
+% completed_time=toc/60;

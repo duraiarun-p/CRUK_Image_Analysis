@@ -147,6 +147,7 @@ col_ind=zeros(all_files_len,1);
 
 % ind=2;
 %%
+start_time=tic;
 for file_ind=1:all_files_len
         % row=row_ind(file_ind);
         % colum=col_ind(file_ind);
@@ -184,22 +185,25 @@ for file_ind=1:all_files_len
 %         bins_array_3=bins_cell{file_ind,1}; % changed the col
         bins_array_3=bins_array_3(lambdas,:,:,:);
 % 
-        tic;
+        % tic;
         [allIntensityImages1,lifetimeImageData1,lifetimeAlphaData1]=Analysis_LMfitting_per_tile(bins_array_3,binToFit,histMode,frame_size);
 %         lifetimeImageData1=permute(lifetimeImageData1,[2 3 spectral_dimension_ind]);
-
+        allIntensityImages1=squeeze(allIntensityImages1);
         allIntensityImages{file_ind} = allIntensityImages1;
         lifetimeImageData{file_ind} = lifetimeImageData1;
         lifetimeAlphaData{file_ind} = lifetimeAlphaData1;
-        time_LS(file_ind)=toc;
-        disp("fitting complete - execution time: " + time_LS(imageNumber) + " seconds");
+        % time_LS(file_ind)=toc;
+        disp("fitting complete - execution time: " + time_LS(file_ind) + " seconds");
 
         matfilename=[outputdir,num2str(file_ind),'.mat'];
         imgfilename=[outputdir,num2str(file_ind),'.tiff'];
-        imwrite(allIntensityImages,imgfilename)
+        imwrite(rescale(allIntensityImages1),imgfilename)
 
-    % save(matfilename,'allIntensityImages','lifetimeImageData','lifetimeAlphaData','-v7.3')
+    save(matfilename,'allIntensityImages1','lifetimeImageData1','lifetimeAlphaData1','-v7.3');
 %     end
 end
-
+matcorefilename=[outputdir,'core_all','.mat'];
+save(matcorefilename,'allIntensityImages','lifetimeImageData','lifetimeAlphaData','-v7.3');
+end_time=toc;
+disp((end_time-start_time)/60);
 end
