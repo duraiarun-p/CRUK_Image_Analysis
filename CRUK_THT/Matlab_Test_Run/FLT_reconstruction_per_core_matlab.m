@@ -128,21 +128,21 @@ time_LS=zeros(1,numberofRows*numberofColums);
 
 % row = 0;
 
-row = 0;
-ind=1;
-row_ind=zeros(numberofRows*numberofColums,1);
-col_ind=zeros(numberofRows*numberofColums,1);
-for r = 1:numberofRows
-    row = row + 1;
-
-    colum = 0;
-    for k = 1:numberofColums
-        colum = colum + 1;
-        row_ind(ind)=row;
-        col_ind(ind)=colum;
-        ind=ind+1;
-    end
-end
+% row = 0;
+% ind=1;
+% row_ind=zeros(numberofRows*numberofColums,1);
+% col_ind=zeros(numberofRows*numberofColums,1);
+% for r = 1:numberofRows
+%     row = row + 1;
+% 
+%     colum = 0;
+%     for k = 1:numberofColums
+%         colum = colum + 1;
+%         row_ind(ind)=row;
+%         col_ind(ind)=colum;
+%         ind=ind+1;
+%     end
+% end
 
 all_files = dir(filePath);
 file_list_names={all_files.name}; % Get file names into cell array
@@ -154,22 +154,35 @@ all_files = sortrows(all_files, 'name');
 all_files = table2struct(all_files);
 tic;
 all_files_len=length(all_files);
+row_ind=zeros(all_files_len,1);
+col_ind=zeros(all_files_len,1);
+%%
+
 % ind=2;
+%%
 for file_ind=1:all_files_len
-        row=row_ind(file_ind);
-        colum=col_ind(file_ind);
-        disp('row')
-        disp(row)
-        disp('column')
-        disp(colum)
+        % row=row_ind(file_ind);
+        % colum=col_ind(file_ind);
+        % disp('row')
+        % disp(row)
+        % disp('column')
+        % disp(colum)
+
+        
        
-        fileNumber = row+colum-1 + ((row-1)*(numberofColums-1))+numberofNondataFolders;
-        imageNumber = row+colum-1 + ((row-1)*(numberofColums-1));
+        % fileNumber = row+colum-1 + ((row-1)*(numberofColums-1))+numberofNondataFolders;
+        % imageNumber = row+colum-1 + ((row-1)*(numberofColums-1));
+        % disp(fileNumber)
+        % disp(imageNumber)
+        stepp=split(all_files(file_ind).name,'_');
+        row_ind(file_ind)=str2double(stepp{2,1});
+        col_ind(file_ind)=str2double(stepp{4,1});
+
         %move to and load worspace from 1st subfolder
-        currDir = [filePath,'/',all_files(fileNumber).name];
+        currDir = [filePath,'/',all_files(file_ind).name];
         cd(currDir)
         disp('Loading workspace for folder:')
-        disp(all_files(fileNumber).name)
+        disp(all_files(file_ind).name)
         load('workspace.frame_1.mat')
         %return to matlab scripts directory
         cd(currentFolder)
@@ -183,7 +196,7 @@ for file_ind=1:all_files_len
 
 %         bins_array_3=bins_cell{file_ind,1}; % changed the col
         bins_array_3=bins_array_3(lambdas,:,:,:);
-        
+% 
         tic;
         [allIntensityImages1,lifetimeImageData1,lifetimeAlphaData1]=Analysis_LMfitting_per_tile(bins_array_3,binToFit,histMode,frame_size);
 %         lifetimeImageData1=permute(lifetimeImageData1,[2 3 spectral_dimension_ind]);
@@ -198,4 +211,5 @@ for file_ind=1:all_files_len
     % save(matfilename,'allIntensityImages','lifetimeImageData','lifetimeAlphaData','-v7.3')
 %     end
 end
+%%
 completed_time=toc/60;
