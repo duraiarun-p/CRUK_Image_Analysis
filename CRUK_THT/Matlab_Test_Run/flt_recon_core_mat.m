@@ -1,6 +1,6 @@
 function flt_recon_core_mat(filePath,currentFolder,numberoflambdas,binToFit)
 
-outputdir=strcat(filePath,'Mat_output/');
+outputdir=strcat(filePath,'/Mat_output2/');
 if isfolder(outputdir)==0
     mkdir(outputdir);
 end
@@ -139,7 +139,7 @@ all_files(1:numberofNondataFolders)=[];
 all_files = struct2table(all_files);
 all_files = sortrows(all_files, 'name');
 all_files = table2struct(all_files);
-tic;
+
 all_files_len=length(all_files);
 row_ind=zeros(all_files_len,1);
 col_ind=zeros(all_files_len,1);
@@ -147,7 +147,7 @@ col_ind=zeros(all_files_len,1);
 
 % ind=2;
 %%
-start_time=tic;
+tic;
 for file_ind=1:all_files_len
         % row=row_ind(file_ind);
         % colum=col_ind(file_ind);
@@ -169,9 +169,13 @@ for file_ind=1:all_files_len
         %move to and load worspace from 1st subfolder
         currDir = [filePath,'/',all_files(file_ind).name];
         cd(currDir)
+        disp(currDir);
         disp('Loading workspace for folder:')
         disp(all_files(file_ind).name)
+        try
+        disp('Loading')
         load('workspace.frame_1.mat')
+
         %return to matlab scripts directory
         cd(currentFolder)
         
@@ -184,16 +188,27 @@ for file_ind=1:all_files_len
 
 %         bins_array_3=bins_cell{file_ind,1}; % changed the col
         bins_array_3=bins_array_3(lambdas,:,:,:);
-% 
+      disp('Fitting');
         % tic;
         [allIntensityImages1,lifetimeImageData1,lifetimeAlphaData1]=Analysis_LMfitting_per_tile(bins_array_3,binToFit,histMode,frame_size);
+        time_LS(file_ind)=toc;
+        disp("fitting complete - execution time: " + time_LS(file_ind) + " seconds");
+
+        catch
+            continue;
+        allIntensityImages1=zeros(frame_size_x,frame_size_x);
+        lifetimeImageData1=zeros(n_spectrum,frame_size_x,frame_size_x);
+        lifetimeAlphaData1=zeros(n_spectrum,frame_size_x,frame_size_x);
+        disp("fitting was not complete");
+        end
 %         lifetimeImageData1=permute(lifetimeImageData1,[2 3 spectral_dimension_ind]);
         allIntensityImages1=squeeze(allIntensityImages1);
         allIntensityImages{file_ind} = allIntensityImages1;
         lifetimeImageData{file_ind} = lifetimeImageData1;
         lifetimeAlphaData{file_ind} = lifetimeAlphaData1;
         % time_LS(file_ind)=toc;
-        disp("fitting complete - execution time: " + time_LS(file_ind) + " seconds");
+        
+        
 
         matfilename=[outputdir,num2str(file_ind),'.mat'];
         imgfilename=[outputdir,num2str(file_ind),'.tiff'];

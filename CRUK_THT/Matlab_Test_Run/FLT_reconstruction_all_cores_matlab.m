@@ -1,5 +1,7 @@
 %%test analysis script
 clc;clear;close all;
+addpath('/home/cruk/Documents/Gpufit-build/matlab/');
+addpath('/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/CRUK_THT/Matlab_Test_Run/fullspectral_8bands/');
 %% Parameters
 nopeaks=3;
 no_of_spectral_channels=310;
@@ -10,6 +12,7 @@ binToFit2=[1,15];
 currentworkingFolder = fileparts(mfilename('fullpath'));
 core_Path = '/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/';
 core_Folder=dir(fullfile(core_Path, '*Row*'));
+core_Folder(1:4)=[];
 core_Folder_len=length(core_Folder);
 %%
 for core_i = 1 : core_Folder_len
