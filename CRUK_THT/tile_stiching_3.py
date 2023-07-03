@@ -30,7 +30,8 @@ import scipy
 # mypath='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour/Row-1_Col-9_20230222/FLT_IMG_DIR'
 # mypath='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour/Row-4_Col-7_20230220/FLT_IMG_DIR'
 
-mypath='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-6_Col-10_20230223/FLT_IMG_DIR_0'
+# mypath='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-6_Col-10_20230223/FLT_IMG_DIR_0'
+mypath='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-2_20230215/FLT_IMG_DIR'
 # onlyfiles = [join(mypath, f) for f in listdir(mypath) if isdir(join(mypath, f))]
 onlyfiles = [join(mypath, f) for f in listdir(mypath)]
 onlyfiles.sort()
@@ -246,7 +247,7 @@ plt.title('Core Intensity Image - before mosaicing')
 # plt.savefig('Core_Int.png')
 
 page_index=17
-plt.figure(1)
+plt.figure(21)
 plt.imshow(cube_flt[:,:,page_index],cmap='gray')
 plt.colorbar()
 plt.show()
@@ -260,7 +261,7 @@ plt.show()
 plt.title('Core Intensity Image - after mosaicing')
 # plt.savefig('Core_Int_M.png')
 
-plt.figure(2)
+plt.figure(22)
 plt.imshow(cube_flt_f[:,:,page_index],cmap='gray')
 plt.colorbar()
 plt.show()
