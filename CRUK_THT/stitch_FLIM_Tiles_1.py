@@ -113,6 +113,8 @@ stitch_intensity_arr = np.zeros([stitch_img_shape[1], stitch_img_shape[0]], dtyp
 stitch_intensity = np.zeros([stitch_img_shape[1], stitch_img_shape[0]], dtype=np.uint16)
 stitch_intensity_cube  = np.zeros([stitch_img_shape[1], stitch_img_shape[0], no_of_chs], dtype=np.uint16)
 stitch_flt_cube  = np.zeros([stitch_img_shape[1], stitch_img_shape[0], no_of_chs], dtype=np.uint16)
+stitch_intensity_cube_f  = np.zeros([stitch_img_shape[0], stitch_img_shape[1], no_of_chs], dtype=np.uint16)
+stitch_flt_cube_f  = np.zeros([stitch_img_shape[0], stitch_img_shape[1], no_of_chs], dtype=np.uint16)
 
 # stitch_intensity_arr = np.zeros([stitch_img_shape[0] + shift_x, stitch_img_shape[1] + shift_y], dtype=np.uint16)
 # stitch_intensity = np.zeros([stitch_img_shape[0] + shift_x, stitch_img_shape[1] + shift_y], dtype=np.uint16)
@@ -256,6 +258,10 @@ for t_i, p in positions_new.items():
 
 stitch_intensity = np.flipud(cv2.rotate(stitch_intensity, cv2.ROTATE_90_COUNTERCLOCKWISE))
 
+for page in range(no_of_chs):
+    stitch_intensity_cube_f[:,:,page]=np.flipud(cv2.rotate(stitch_intensity_cube[:,:,page],cv2.ROTATE_90_COUNTERCLOCKWISE))
+    stitch_flt_cube_f[:,:,page]=np.flipud(cv2.rotate(stitch_flt_cube[:,:,page],cv2.ROTATE_90_COUNTERCLOCKWISE))
+
 #%%
 
 plt.figure(1)
@@ -275,6 +281,14 @@ plt.imshow(stitch_intensity_cube[:,:,page],cmap='gray')
 plt.colorbar()
 plt.subplot(1,2,2)
 plt.imshow(stitch_flt_cube[:,:,page],cmap='gray')
+plt.colorbar()
+plt.show()
+plt.figure(4)
+plt.subplot(1,2,1)
+plt.imshow(stitch_intensity_cube_f[:,:,page],cmap='gray')
+plt.colorbar()
+plt.subplot(1,2,2)
+plt.imshow(stitch_flt_cube_f[:,:,page],cmap='gray')
 plt.colorbar()
 plt.show()
 #%%
