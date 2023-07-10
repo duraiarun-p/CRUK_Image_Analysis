@@ -56,7 +56,7 @@ hist_img_val=hist_img_hsv[:,:,2]
 hist_img_val[hist_img_val>200]=0
 
 hist_img_int=cv2.bitwise_or(hist_img_gray,hist_img_val)
-hist_img_int[hist_img_int>230]=0
+hist_img_int[hist_img_int>200]=0
 
 #%% Mask for circular ROI
 hist_img_msk=hist_img_int
@@ -67,25 +67,52 @@ hist_img_msk_inv=cv2.bitwise_not(hist_img_msk)
 h, w = hist_img_int.shape[:2]
 mask = np.zeros((h+2, w+2), np.uint8)
 
-hist_img_msk_fill=hist_img_msk
+# hist_img_msk_fill=hist_img_msk
 
 plt.figure(2)
-plt.subplot(1,3,1)
+plt.subplot(2,2,1)
 plt.imshow(hist_img_msk_inv,cmap='gray')
 plt.show()
 
-cv2.floodFill(hist_img_msk_fill,mask,(h//2,w//2),255)
+# cv2.floodFill(hist_img_msk_fill,mask,(h//2,w//2),255)
 
-hist_img_msk_fill_inv=cv2.bitwise_not(hist_img_msk_fill)
+# hist_img_msk_fill_inv=cv2.bitwise_not(hist_img_msk_fill)
+
+
+hist_img_msk_blur = cv2.GaussianBlur(hist_img_msk, (35,35),100)
+hist_img_msk_edge = cv2.Sobel(src=hist_img_msk_blur, ddepth=cv2.CV_64F, dx=1, dy=1, ksize=25)
 
 plt.figure(2)
-plt.subplot(1,3,2)
-plt.imshow(hist_img_msk_fill,cmap='gray')
+plt.subplot(2,2,2)
+plt.imshow(hist_img_msk_blur,cmap='gray')
 plt.show()
 
 plt.figure(2)
-plt.subplot(1,3,3)
-plt.imshow(hist_img_msk_fill_inv,cmap='gray')
+plt.subplot(2,2,3)
+plt.imshow(hist_img_msk_edge,cmap='gray')
+plt.show()
+
+hist_img_msk_edge_con=hist_img_msk_edge
+hist_img_msk_edge_con[hist_img_msk_edge_con==0]=255
+hist_img_msk_edge_con[hist_img_msk_edge_con!=255]=0
+hist_img_msk_edge_con=hist_img_msk_edge_con.astype('uint8')
+# hist_img_msk_edge_con1=np.zeros_like(hist_img_msk_edge_con)
+# hist_img_msk_edge_con1_tup=cv2.floodFill(hist_img_msk_edge_con,mask,(0,0),255)
+# hist_img_msk_edge_con1=hist_img_msk_edge_con1_tup[2]
+
+hist_img_msk_edge_con_edge=cv2.Sobel(src=hist_img_msk_edge_con, ddepth=cv2.CV_64F, dx=1, dy=1, ksize=25)
+
+plt.figure(2)
+plt.subplot(2,2,4)
+plt.imshow(hist_img_msk_edge_con,cmap='gray')
+plt.show()
+
+
+hist_img_msk_edge_con_inv=cv2.bitwise_not(hist_img_msk_edge_con)
+
+plt.figure(3)
+plt.subplot(2,2,1)
+plt.imshow(hist_img_msk_edge_con_inv,cmap='gray')
 plt.show()
 #%%
 
