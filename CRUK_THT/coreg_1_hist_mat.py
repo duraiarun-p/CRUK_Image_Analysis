@@ -101,6 +101,11 @@ hist_img_msk_edge_con=hist_img_msk_edge_con.astype('uint8')
 # hist_img_msk_edge_con1=hist_img_msk_edge_con1_tup[2]
 
 hist_img_msk_edge_con_edge=cv2.Sobel(src=hist_img_msk_edge_con, ddepth=cv2.CV_64F, dx=1, dy=1, ksize=25)
+hist_img_msk_edge_con_edge[hist_img_msk_edge_con_edge==0]=255
+hist_img_msk_edge_con_edge[hist_img_msk_edge_con_edge!=255]=0
+
+kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(35,35))
+hist_img_msk_edge_con_edge = cv2.morphologyEx(hist_img_msk_edge_con_edge,cv2.MORPH_OPEN,kernel)
 
 plt.figure(2)
 plt.subplot(2,2,4)
@@ -110,10 +115,34 @@ plt.show()
 
 hist_img_msk_edge_con_inv=cv2.bitwise_not(hist_img_msk_edge_con)
 
+
+
+kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(25,25))
+hist_img_msk_edge_con_inv = cv2.morphologyEx(hist_img_msk_edge_con_inv,cv2.MORPH_OPEN,kernel)
+
+contour,hier = cv2.findContours(hist_img_msk_edge_con_inv,cv2.RETR_CCOMP,cv2.CHAIN_APPROX_SIMPLE)
+
+for cnt in contour:
+    cv2.drawContours(hist_img_msk_edge_con_inv,[cnt],0,255,-1)
+
+gray = cv2.bitwise_not(hist_img_msk_edge_con_inv)
+
+# gray_bw=cv2.bitwise_not(gray)
+# # gray_bw=gray
+# contour,hier = cv2.findContours(gray_bw,cv2.RETR_CCOMP,cv2.CHAIN_APPROX_SIMPLE)
+
+# for cnt in contour:
+#     cv2.drawContours(gray_bw,[cnt],0,255,-1)
+
+gray = cv2.bitwise_not(gray)
+
 plt.figure(3)
 plt.subplot(2,2,1)
-plt.imshow(hist_img_msk_edge_con_inv,cmap='gray')
+plt.imshow(gray,cmap='gray')
 plt.show()
+# plt.subplot(2,2,2)
+# plt.imshow(gray1,cmap='gray')
+# plt.show()
 #%%
 
 
