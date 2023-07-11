@@ -48,15 +48,20 @@ pix_x_hist=0.22
 
 #%% Hist Image pre-processing for registration
 
+thresh=200
+
 hist_img_gray=cv2.cvtColor(hist_img, cv2.COLOR_BGR2GRAY)
-hist_img_gray[hist_img_gray>200]=0
+hist_img_gray_f=hist_img_gray
+# hist_img_gray=np.abs(255-hist_img_gray)
+# hist_img_gray[hist_img_gray<50]=0
+hist_img_gray[hist_img_gray>thresh]=0
 
 hist_img_hsv = cv2.cvtColor(hist_img, cv2.COLOR_BGR2HSV)
 hist_img_val=hist_img_hsv[:,:,2]
-hist_img_val[hist_img_val>200]=0
+hist_img_val[hist_img_val>thresh]=0
 
 hist_img_int=cv2.bitwise_or(hist_img_gray,hist_img_val)
-hist_img_int[hist_img_int>200]=0
+hist_img_int[hist_img_int>thresh]=0
 
 #%% Mask for circular ROI
 hist_img_msk=hist_img_int
@@ -144,7 +149,16 @@ plt.show()
 # plt.imshow(gray1,cmap='gray')
 # plt.show()
 #%%
+hist_img_f=cv2.bitwise_and(hist_img_gray_f,gray)
+#%%
 
+plt.figure(10)
+plt.subplot(1,2,1)
+plt.imshow(hist_img_f,cmap='gray')
+# plt.colorbar()
+plt.subplot(1,2,2)
+plt.imshow(hist_img_gray_f,cmap='gray')
+plt.show()
 
 
 
