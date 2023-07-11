@@ -9,7 +9,9 @@ Created on Mon Jul 10 18:20:38 2023
 
 import cv2
 import numpy as np
-# 
+from skimage.metrics import normalized_root_mse as nrmse
+from skimage.metrics import normalized_mutual_information as nmi
+from skimage.metrics import structural_similarity as ssim
 #%% Masking function for the Histology Image
 
 def coreg_img_pre_process(hist_img,thresh):
@@ -183,7 +185,7 @@ def OCV_Homography_2D(imgRef_grey,imgTest_grey,NFN):
     aligned_img = cv2.warpPerspective(imgTest_grey, homography, (width, height))
     return aligned_img, homography, mask
 
-
+# Affine OpenCV with 2D image as inputs
 def Affine_OpCV_2D(Fixed_sitk,Moving_sitk):
     sz=Fixed_sitk.shape
     Moving_sitk=cv2.resize(Moving_sitk, (sz[1],sz[0]), interpolation= cv2.INTER_NEAREST)
@@ -192,7 +194,7 @@ def Affine_OpCV_2D(Fixed_sitk,Moving_sitk):
 
     warp_matrix = np.eye(2, 3, dtype=np.float32)
 
-    number_of_iterations = 5000
+    number_of_iterations = 2000
 
 
     termination_eps = 1e-10
@@ -206,3 +208,11 @@ def Affine_OpCV_2D(Fixed_sitk,Moving_sitk):
     Moving_sitk_registered = cv2.warpAffine(Moving_sitk, warp_matrix, (sz[1],sz[0]), flags=cv2.INTER_LINEAR + cv2.WARP_INVERSE_MAP)
     
     return Moving_sitk_registered, warp_matrix, cc
+#%% Performation
+def perf_reg(Fixed_N,Moving_R2):
+    
+    Reg_GH=np.zeros((3,1))
+    Reg_GH[0]=nrmse(Fixed_N,Moving_R2)
+    Reg_GH[1]=nmi(Fixed_N,Moving_R2)
+    Reg_GH[2]=ssim(Fixed_N,Moving_R2)
+    return Reg_GH

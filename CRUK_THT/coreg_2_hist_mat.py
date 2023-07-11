@@ -16,15 +16,15 @@ import matplotlib.pyplot as plt
 # import h5py
 from scipy import ndimage as ndi
 from scipy.io import savemat,loadmat
-from coreg_lib import coreg_img_pre_process,OCV_Homography_2D,prepare_img_4_reg_Moving_changedatatype,prepare_img_4_reg_Fixed_changedatatype,Affine_OpCV_2D
+from coreg_lib import coreg_img_pre_process,OCV_Homography_2D,prepare_img_4_reg_Moving_changedatatype,prepare_img_4_reg_Fixed_changedatatype,Affine_OpCV_2D,perf_reg
 import time
 #%%
 
-base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-2_20230215/Mat_output'
+# base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-2_20230215/Mat_output'
 # base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-9_20230222/Mat_output'
 # base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-13_20230226/Mat_output'
 # base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-3_Col-5_20230218/Mat_output2'
-# base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-4_Col-1_20230214/Mat_output'
+base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-4_Col-1_20230214/Mat_output'
 # base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-6_Col-10_20230223/Mat_output'
 
 #%% Hist Image Loading with assertion
@@ -110,7 +110,7 @@ stitch_flt_cube=stitch_flt_cube_ref[()]
 #%% Coregistration sub-routine
 
 # Approach 1: Hist - Moving FLIM Intensity - Fixed
-# Hist - Green Channel
+# Hist - Green Channel Registration
 
 Fixed=stitch_intensity
 Moving=hist_img_f[:,:,1]
@@ -143,26 +143,26 @@ plt.title('Moving')
 plt.show()
 #%%
 
-tic = time.perf_counter()
-Moving_R1, homography, mask=OCV_Homography_2D(Fixed_N, Moving_N,NofFeaturs)
-toc = time.perf_counter()
-HG_time=(toc-tic)/60
-print('HG: %s'%HG_time)
+# tic = time.perf_counter()
+# Moving_R1, homography, mask=OCV_Homography_2D(Fixed_N, Moving_N,NofFeaturs)
+# toc = time.perf_counter()
+# HG_time=(toc-tic)/60
+# print('HG: %s'%HG_time)
 
 plt.figure(5)
-plt.subplot(2,2,1)
+plt.subplot(2,3,1)
 plt.imshow(Fixed_N,cmap='gray')
 plt.colorbar()
 plt.title('Fixed')
-plt.subplot(2,2,2)
+plt.subplot(2,3,2)
 plt.imshow(Moving_N,cmap='gray')
 plt.colorbar()
-plt.title('Moving')
-plt.subplot(2,2,3)
-plt.imshow(Moving_R1,cmap='gray')
-plt.colorbar()
-plt.title('Moving registered homography')
-plt.show()
+plt.title('Moving - G ch')
+# plt.subplot(2,2,3)
+# plt.imshow(Moving_R1,cmap='gray')
+# plt.colorbar()
+# plt.title('Moving registered homography')
+# plt.show()
 
 tic = time.perf_counter()
 Moving_R2, warp_matrix, cc=Affine_OpCV_2D(Fixed_N,Moving_N)
@@ -171,8 +171,60 @@ Affine_time=(toc-tic)/60
 print('Affine: %s'%Affine_time)
 
 plt.figure(5)
-plt.subplot(2,2,4)
+plt.subplot(2,3,3)
 plt.imshow(Moving_R2,cmap='gray')
+plt.colorbar()
+plt.title('Moving registered affine')
+plt.show()
+
+#%% Saturation - Hist Registration
+Fixed=stitch_intensity
+Moving=hist_img_hsv_f[:,:,1]
+NofFeaturs=1000
+
+Fixed_N, Moving_N=prepare_img_4_reg_Fixed_changedatatype(Fixed,Moving)
+
+tic = time.perf_counter()
+Moving_R3, warp_matrix, cc=Affine_OpCV_2D(Fixed_N,Moving_N)
+toc = time.perf_counter()
+Affine_time=(toc-tic)/60
+print('Affine: %s'%Affine_time)
+
+#%%
+plt.figure(5)
+plt.subplot(2,3,4)
+plt.imshow(Fixed_N,cmap='gray')
+plt.colorbar()
+plt.title('Fixed')
+plt.subplot(2,3,5)
+plt.imshow(Moving_N,cmap='gray')
+plt.colorbar()
+plt.title('Moving - S ch')
+plt.figure(5)
+plt.subplot(2,3,6)
+plt.imshow(Moving_R3,cmap='gray')
+plt.colorbar()
+plt.title('Moving registered affine')
+plt.show()
+#%% Registration Evaluation
+Reg_GH=perf_reg(Fixed_N,Moving_R2)
+Reg_SH=perf_reg(Fixed_N,Moving_R3)
+
+print('G-Hi: %s S-Hi:%s'%(Reg_GH,Reg_SH))
+#%%
+Reg=np.transpose(np.vstack([Reg_GH,Reg_SH]))
+#%%
+plt.figure(6)
+plt.subplot(1,3,1)
+plt.imshow(Fixed_N,cmap='gray')
+plt.colorbar()
+plt.title('Fixed')
+plt.subplot(1,3,2)
+plt.imshow(Moving_N,cmap='gray')
+plt.colorbar()
+plt.title('Moving - S ch')
+plt.subplot(1,3,3)
+plt.imshow(Moving_R3,cmap='gray')
 plt.colorbar()
 plt.title('Moving registered affine')
 plt.show()
