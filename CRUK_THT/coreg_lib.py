@@ -128,40 +128,41 @@ def prepare_img_4_reg_Moving_changedatatype(Fixed,Moving):
 def OCV_Homography_2D(imgRef_grey,imgTest_grey,NFN):
     height, width = imgRef_grey.shape
     imgTest_grey=cv2.resize(imgTest_grey, (width,height), interpolation= cv2.INTER_NEAREST)
-    # orb_detector = cv2.ORB_create(nfeatures=NFN)
+    orb_detector = cv2.ORB_create(nfeatures=NFN)
  
     # Extract key points and descriptors for both images
-    # keyPoint1, des1 = orb_detector.detectAndCompute(imgTest_grey, None)
-    # keyPoint2, des2 = orb_detector.detectAndCompute(imgRef_grey, None)
+    keyPoint1, des1 = orb_detector.detectAndCompute(imgTest_grey, None)
+    keyPoint2, des2 = orb_detector.detectAndCompute(imgRef_grey, None)
     
-    # Initiate SIFT detector
-    sift_detector = cv2.SIFT_create()
-    # Find the keypoints and descriptors with SIFT
-    keyPoint1, des1 = sift_detector.detectAndCompute(imgTest_grey, None)
-    keyPoint2, des2 = sift_detector.detectAndCompute(imgRef_grey, None)
+    # # Initiate SIFT detector
+    # sift_detector = cv2.SIFT_create()
+    # # Find the keypoints and descriptors with SIFT
+    # keyPoint1, des1 = sift_detector.detectAndCompute(imgTest_grey, None)
+    # keyPoint2, des2 = sift_detector.detectAndCompute(imgRef_grey, None)
     
     
     # Match features between two images using Brute Force matcher with Hamming distance
-    # matcher = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
-    matcher = cv2.BFMatcher()
+    matcher = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
+    # matcher = cv2.BFMatcher()
     # Match the two sets of descriptors.
-    # matches = matcher.match(des1, des2)
+    matches = matcher.match(des1, des2)
      
     # # Sort matches on the basis of their Hamming distance.
-    # matches.sort(key=lambda x: x.distance)
+    matches = sorted(matches, key=lambda x: x.distance)
+    
      
-    # # Take the top 90 % matches forward.
-    # matches = matches[:int(len(matches) * 0.9)]
+    # Take the top 90 % matches forward.
+    matches = matches[:int(len(matches) * 0.9)]
     
-    matches = matcher.knnMatch(des1, des2, k=2)
+    # matches = matcher.knnMatch(des1, des2, k=2)
 
-    # Filter out poor matches
-    good_matches = []
-    for m,n in matches:
-        if m.distance < 0.75*n.distance:
-            good_matches.append(m)
+    # # Filter out poor matches
+    # good_matches = []
+    # for m,n in matches:
+    #     if m.distance < 0.9*n.distance:
+    #         good_matches.append(m)
     
-    matches = good_matches
+    # matches = good_matches
     
     
     no_of_matches = len(matches)
@@ -191,7 +192,7 @@ def Affine_OpCV_2D(Fixed_sitk,Moving_sitk):
 
     warp_matrix = np.eye(2, 3, dtype=np.float32)
 
-    number_of_iterations = 50000
+    number_of_iterations = 5000
 
 
     termination_eps = 1e-10

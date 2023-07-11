@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 from scipy import ndimage as ndi
 from scipy.io import savemat,loadmat
 from coreg_lib import coreg_img_pre_process,OCV_Homography_2D,prepare_img_4_reg_Moving_changedatatype,prepare_img_4_reg_Fixed_changedatatype,Affine_OpCV_2D
-# import coreg_lib
+import time
 #%%
 
 base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-2_20230215/Mat_output'
@@ -143,8 +143,11 @@ plt.title('Moving')
 plt.show()
 #%%
 
-
-# Moving_R1, homography, mask=OCV_Homography_2D(Fixed_N, Moving_N,NofFeaturs)
+tic = time.perf_counter()
+Moving_R1, homography, mask=OCV_Homography_2D(Fixed_N, Moving_N,NofFeaturs)
+toc = time.perf_counter()
+HG_time=(toc-tic)/60
+print('HG: %s'%HG_time)
 
 plt.figure(5)
 plt.subplot(2,2,1)
@@ -155,13 +158,17 @@ plt.subplot(2,2,2)
 plt.imshow(Moving_N,cmap='gray')
 plt.colorbar()
 plt.title('Moving')
-# plt.subplot(2,2,3)
-# plt.imshow(Moving_R1,cmap='gray')
-# plt.colorbar()
-# plt.title('Moving registered homography')
+plt.subplot(2,2,3)
+plt.imshow(Moving_R1,cmap='gray')
+plt.colorbar()
+plt.title('Moving registered homography')
 plt.show()
 
+tic = time.perf_counter()
 Moving_R2, warp_matrix, cc=Affine_OpCV_2D(Fixed_N,Moving_N)
+toc = time.perf_counter()
+Affine_time=(toc-tic)/60
+print('Affine: %s'%Affine_time)
 
 plt.figure(5)
 plt.subplot(2,2,4)
