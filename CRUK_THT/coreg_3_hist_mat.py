@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Mon Jul 10 17:28:07 2023
+Created on Tue Jul 11 23:18:45 2023
 
 @author: Arun PDRA, THT
 """
-
 #%%
 import os
 import sys
@@ -70,112 +69,6 @@ stitch_intensity_cube=stitch_intensity_cube_ref[()]
 stitch_flt_cube_ref=core_mat_contents['stitch_flt_cube']
 stitch_flt_cube=stitch_flt_cube_ref[()]
 
-#%% Visulaisation
-# plt.figure(1)
-# plt.subplot(3,3,1)
-# plt.imshow(hist_img)
-# plt.subplot(3,3,2)
-# plt.imshow(hist_img_gray,cmap='gray')
-# plt.subplot(3,3,3)
-# plt.imshow(hist_img_gray_f,cmap='gray')
-# plt.subplot(3,3,4)
-# plt.imshow(hist_img_f[:,:,0],cmap='gray')
-# plt.subplot(3,3,5)
-# plt.imshow(hist_img_f[:,:,1],cmap='gray')
-# plt.subplot(3,3,6)
-# plt.imshow(hist_img_f[:,:,2],cmap='gray')
-# plt.subplot(3,3,7)
-# plt.imshow(hist_img_hsv_f[:,:,0],cmap='gray')
-# plt.subplot(3,3,8)
-# plt.imshow(hist_img_hsv_f[:,:,1],cmap='gray')
-# plt.subplot(3,3,9)
-# plt.imshow(hist_img_hsv_f[:,:,2],cmap='gray')
-
-# plt.figure(2)
-# plt.subplot(2,2,1)
-# plt.imshow(hist_img_gray_f,cmap='gray')
-# plt.colorbar()
-# plt.subplot(2,2,2)
-# plt.imshow(stitch_intensity,cmap='gray')
-# plt.colorbar()
-# plt.show()
-# plt.subplot(2,2,3)
-# plt.imshow(hist_img_f[:,:,1],cmap='gray')
-# plt.colorbar()
-# plt.show()
-# plt.subplot(2,2,4)
-# plt.imshow(hist_img_hsv_f[:,:,2],cmap='gray')
-# plt.colorbar()
-# plt.show()
-#%% Coregistration sub-routine
-
-# Approach 1: Hist - Moving FLIM Intensity - Fixed
-# Hist - Green Channel Registration
-
-Fixed=stitch_intensity
-Moving=hist_img_f[:,:,1]
-NofFeaturs=1000
-
-Fixed_N, Moving_N=prepare_img_4_reg_Fixed_changedatatype(Fixed,Moving)
-
-# Fixed_N, Moving_N=prepare_img_4_reg_Moving_changedatatype(Fixed,Moving)
-
-plt.figure(3)
-plt.subplot(1,2,1)
-plt.imshow(Fixed,cmap='gray')
-plt.colorbar()
-plt.title('Fixed')
-plt.subplot(1,2,2)
-plt.imshow(Moving,cmap='gray')
-plt.colorbar()
-plt.title('Moving')
-plt.show()
-
-plt.figure(4)
-plt.subplot(1,2,1)
-plt.imshow(Fixed_N,cmap='gray')
-plt.colorbar()
-plt.title('Fixed')
-plt.subplot(1,2,2)
-plt.imshow(Moving_N,cmap='gray')
-plt.colorbar()
-plt.title('Moving')
-plt.show()
-#%%
-
-# tic = time.perf_counter()
-# Moving_R1, homography, mask=OCV_Homography_2D(Fixed_N, Moving_N,NofFeaturs)
-# toc = time.perf_counter()
-# HG_time=(toc-tic)/60
-# print('HG: %s'%HG_time)
-
-plt.figure(5)
-plt.subplot(2,3,1)
-plt.imshow(Fixed_N,cmap='gray')
-plt.colorbar()
-plt.title('Fixed')
-plt.subplot(2,3,2)
-plt.imshow(Moving_N,cmap='gray')
-plt.colorbar()
-plt.title('Moving - G ch')
-# plt.subplot(2,2,3)
-# plt.imshow(Moving_R1,cmap='gray')
-# plt.colorbar()
-# plt.title('Moving registered homography')
-# plt.show()
-
-tic = time.perf_counter()
-Moving_R2, warp_matrix, cc=Affine_OpCV_2D(Fixed_N,Moving_N)
-toc = time.perf_counter()
-Affine_time=(toc-tic)/60
-print('Affine: %s'%Affine_time)
-
-plt.figure(5)
-plt.subplot(2,3,3)
-plt.imshow(Moving_R2,cmap='gray')
-plt.colorbar()
-plt.title('Moving registered affine')
-plt.show()
 
 #%% Saturation - Hist Registration
 Fixed=stitch_intensity
@@ -190,29 +83,10 @@ toc = time.perf_counter()
 Affine_time=(toc-tic)/60
 print('Affine: %s'%Affine_time)
 
-#%%
-plt.figure(5)
-plt.subplot(2,3,4)
-plt.imshow(Fixed_N,cmap='gray')
-plt.colorbar()
-plt.title('Fixed')
-plt.subplot(2,3,5)
-plt.imshow(Moving_N,cmap='gray')
-plt.colorbar()
-plt.title('Moving - S ch')
-plt.figure(5)
-plt.subplot(2,3,6)
-plt.imshow(Moving_R3,cmap='gray')
-plt.colorbar()
-plt.title('Moving registered affine')
-plt.show()
 #%% Registration Evaluation
-Reg_GH=perf_reg(Fixed_N,Moving_R2)
+
 Reg_SH=perf_reg(Fixed_N,Moving_R3)
 
-print('G-Hi: %s S-Hi:%s'%(Reg_GH,Reg_SH))
-#%%
-Reg=np.transpose(np.vstack([Reg_GH,Reg_SH]))
 #%%
 plt.figure(6)
 plt.subplot(1,3,1)
