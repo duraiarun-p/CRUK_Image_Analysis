@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 # import h5py
 from scipy import ndimage as ndi
 from scipy.io import savemat,loadmat
-from coreg_lib import coreg_img_pre_process,OCV_Homography_2D,prepare_img_4_reg_Moving_changedatatype,prepare_img_4_reg_Fixed_changedatatype
+from coreg_lib import coreg_img_pre_process,OCV_Homography_2D,prepare_img_4_reg_Moving_changedatatype,prepare_img_4_reg_Fixed_changedatatype,Affine_OpCV_2D
 # import coreg_lib
 #%%
 
@@ -117,16 +117,55 @@ Moving=hist_img_f[:,:,1]
 NofFeaturs=1000
 
 Fixed_N, Moving_N=prepare_img_4_reg_Fixed_changedatatype(Fixed,Moving)
+
+# Fixed_N, Moving_N=prepare_img_4_reg_Moving_changedatatype(Fixed,Moving)
+
 plt.figure(3)
 plt.subplot(1,2,1)
 plt.imshow(Fixed,cmap='gray')
+plt.colorbar()
+plt.title('Fixed')
 plt.subplot(1,2,2)
 plt.imshow(Moving,cmap='gray')
+plt.colorbar()
+plt.title('Moving')
+plt.show()
+
+plt.figure(4)
+plt.subplot(1,2,1)
+plt.imshow(Fixed_N,cmap='gray')
+plt.colorbar()
+plt.title('Fixed')
+plt.subplot(1,2,2)
+plt.imshow(Moving_N,cmap='gray')
+plt.colorbar()
+plt.title('Moving')
 plt.show()
 #%%
 
 
-Moving_R, homography, mask=OCV_Homography_2D(Fixed_N, Moving_N,NofFeaturs)
+# Moving_R1, homography, mask=OCV_Homography_2D(Fixed_N, Moving_N,NofFeaturs)
 
+plt.figure(5)
+plt.subplot(2,2,1)
+plt.imshow(Fixed_N,cmap='gray')
+plt.colorbar()
+plt.title('Fixed')
+plt.subplot(2,2,2)
+plt.imshow(Moving_N,cmap='gray')
+plt.colorbar()
+plt.title('Moving')
+# plt.subplot(2,2,3)
+# plt.imshow(Moving_R1,cmap='gray')
+# plt.colorbar()
+# plt.title('Moving registered homography')
+plt.show()
 
-# Fixed_N, Moving_N=prepare_img_4_reg_Moving_changedatatype(Fixed,Moving)
+Moving_R2, warp_matrix, cc=Affine_OpCV_2D(Fixed_N,Moving_N)
+
+plt.figure(5)
+plt.subplot(2,2,4)
+plt.imshow(Moving_R2,cmap='gray')
+plt.colorbar()
+plt.title('Moving registered affine')
+plt.show()
