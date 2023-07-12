@@ -115,6 +115,7 @@ stitch_flt_cube=stitch_flt_cube_ref[()]
 Fixed=stitch_intensity
 Moving=hist_img_f[:,:,1]
 NofFeaturs=1000
+NofIterations=10000
 
 Fixed_N, Moving_N=prepare_img_4_reg_Fixed_changedatatype(Fixed,Moving)
 
@@ -165,7 +166,7 @@ plt.title('Moving - G ch')
 # plt.show()
 
 tic = time.perf_counter()
-Moving_R2, warp_matrix, cc=Affine_OpCV_2D(Fixed_N,Moving_N)
+Moving_R2, warp_matrix, cc=Affine_OpCV_2D(Fixed_N,Moving_N,NofIterations)
 toc = time.perf_counter()
 Affine_time=(toc-tic)/60
 print('Affine: %s'%Affine_time)
@@ -185,7 +186,7 @@ NofFeaturs=1000
 Fixed_N, Moving_N=prepare_img_4_reg_Fixed_changedatatype(Fixed,Moving)
 
 tic = time.perf_counter()
-Moving_R3, warp_matrix, cc=Affine_OpCV_2D(Fixed_N,Moving_N)
+Moving_R3, warp_matrix, cc=Affine_OpCV_2D(Fixed_N,Moving_N,NofIterations)
 toc = time.perf_counter()
 Affine_time=(toc-tic)/60
 print('Affine: %s'%Affine_time)

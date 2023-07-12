@@ -7,8 +7,8 @@ Created on Wed Jul  5 14:48:14 2023
 """
 
 #%%
-# import os
-# import glob
+import os
+import sys
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
@@ -16,18 +16,33 @@ import matplotlib.pyplot as plt
 import h5py
 from scipy import ndimage as ndi
 from scipy.io import savemat
+from coreg_lib import coreg_img_pre_process
 #%%
 
 
 
-base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-2_20230215/Mat_output'
+# base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-2_20230215/Mat_output'
 # base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-9_20230222/Mat_output'
 # base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-13_20230226/Mat_output'
 # base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-3_Col-5_20230218/Mat_output2'
 # base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-4_Col-1_20230214/Mat_output'
-# base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-6_Col-10_20230223/Mat_output'
+base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-6_Col-10_20230223/Mat_output'
 
+#%%
 
+file_extension_type = ('.tif',) # , '.exe', 'jpg', '...')
+for hist_file in os.listdir(base_dir):
+    if hist_file.endswith(file_extension_type) and hist_file.startswith('R'):
+        print("Found a file {}".format(hist_file)) 
+        hist_img=cv2.imread(f"{base_dir}/{hist_file}")
+        
+    # else:
+        # print("File with the name was not found") 
+
+if not 'hist_img' in locals():
+    sys.exit("Execution was stopped due to Hist Image file was not found error")
+
+#%%
 stitch_fiji=cv2.imread(f"{base_dir}/img_t1_z1_c1")
 stitch_img_shape=stitch_fiji.shape
 
@@ -264,12 +279,13 @@ for page in range(no_of_chs):
     stitch_intensity_cube_f[:,:,page]=np.flipud(cv2.rotate(stitch_intensity_cube[:,:,page],cv2.ROTATE_90_COUNTERCLOCKWISE))
     stitch_flt_cube_f[:,:,page]=np.flipud(cv2.rotate(stitch_flt_cube[:,:,page],cv2.ROTATE_90_COUNTERCLOCKWISE))
     
-#%%
-mdic={'stitch_intensity':stitch_intensity,'stitch_intensity_cube':stitch_intensity_cube_f,'stitch_flt_cube':stitch_flt_cube_f}
-# savemat(f"{base_dir}/core_stitched.mat", mdic)
+
 
 #%%
+thresh=200# Image Thresholding
+hist_img_hsv_f,hist_img_f,hist_img_gray_f,hist_mask,hist_img_gray=coreg_img_pre_process(hist_img,thresh)
 
+#%%
 plt.figure(1)
 plt.tight_layout()
 plt.subplot(1,2,2)
@@ -296,7 +312,7 @@ plt.colorbar()
 plt.subplot(1,2,2)
 plt.imshow(stitch_flt_cube_f[:,:,page],cmap='gray')
 plt.colorbar()
-plt.show()
+# plt.show()
 #%%
 
 # plt.figure(4)
@@ -304,11 +320,55 @@ plt.show()
 # plt.show()
 #%%
 plt.figure(5)
-plt.subplot(1,2,1)
-plt.imshow(stitch_fiji)
+plt.subplot(1,3,1)
+plt.imshow(hist_img_f,cmap='gray')
+plt.title('Hist GT Img')
+plt.subplot(1,3,2)
+plt.imshow(stitch_fiji,cmap='gray')
 plt.title('Fiji Output')
-plt.subplot(1,2,2)
+plt.subplot(1,3,3)
 plt.imshow(stitch_intensity,cmap='gray')
 plt.title('Mat stitched')
-plt.show()
-plt.savefig(f"{base_dir}/stitched_compared.png")
+# plt.show()
+# plt.savefig(f"{base_dir}/stitched_compared.png")
+
+#%% check whether further manipulation is required
+# img_rotate_chk=input('Whether the stitched intensity image re-orientation? Enter yes or no: ')
+# if img_rotate_chk.lower()=='no':
+#     pass
+# elif img_rotate_chk.lower()=='yes':
+#     print("Find")
+# else:
+#     print('Break')
+
+stitch_intensity_1 = np.zeros([stitch_img_shape[0], stitch_img_shape[1]], dtype=np.uint16)
+stitch_intensity_cube_f_1  = np.zeros([stitch_img_shape[1], stitch_img_shape[0], no_of_chs], dtype=np.uint16)
+stitch_flt_cube_f_1  = np.zeros([stitch_img_shape[1], stitch_img_shape[0], no_of_chs], dtype=np.uint16)
+
+
+stitch_intensity_1 = np.fliplr(np.flipud(stitch_intensity))
+
+for page in range(no_of_chs):
+    stitch_intensity_cube_f_1[:,:,page]=np.fliplr(np.flipud(stitch_intensity_cube[:,:,page]))
+    stitch_flt_cube_f_1[:,:,page]=np.fliplr(np.flipud(stitch_flt_cube[:,:,page]))
+    
+del stitch_intensity, stitch_intensity_cube_f, stitch_flt_cube_f
+stitch_intensity=stitch_intensity_1
+stitch_intensity_cube_f=stitch_intensity_cube_f_1
+stitch_flt_cube_f=stitch_flt_cube_f_1
+    
+plt.figure(50)
+plt.subplot(1,3,1)
+plt.imshow(hist_img_f,cmap='gray')
+plt.title('Hist GT Img')
+plt.subplot(1,3,2)
+plt.imshow(stitch_fiji,cmap='gray')
+plt.title('Fiji Output')
+plt.subplot(1,3,3)
+plt.imshow(stitch_intensity,cmap='gray')
+plt.title('Mat stitched')
+# plt.show()
+
+#%%
+mdic={'stitch_intensity':stitch_intensity,'stitch_intensity_cube':stitch_intensity_cube_f,'stitch_flt_cube':stitch_flt_cube_f}
+savemat(f"{base_dir}/core_stitched.mat", mdic)

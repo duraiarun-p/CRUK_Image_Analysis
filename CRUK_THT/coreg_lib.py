@@ -186,7 +186,7 @@ def OCV_Homography_2D(imgRef_grey,imgTest_grey,NFN):
     return aligned_img, homography, mask
 
 # Affine OpenCV with 2D image as inputs
-def Affine_OpCV_2D(Fixed_sitk,Moving_sitk):
+def Affine_OpCV_2D(Fixed_sitk,Moving_sitk,number_of_iterations):
     sz=Fixed_sitk.shape
     Moving_sitk=cv2.resize(Moving_sitk, (sz[1],sz[0]), interpolation= cv2.INTER_NEAREST)
     
@@ -194,7 +194,7 @@ def Affine_OpCV_2D(Fixed_sitk,Moving_sitk):
 
     warp_matrix = np.eye(2, 3, dtype=np.float32)
 
-    number_of_iterations = 2000
+    # number_of_iterations = 10000
 
 
     termination_eps = 1e-10
