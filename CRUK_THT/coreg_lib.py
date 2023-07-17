@@ -216,3 +216,13 @@ def perf_reg(Fixed_N,Moving_R2):
     Reg_GH[1]=nmi(Fixed_N,Moving_R2)
     Reg_GH[2]=ssim(Fixed_N,Moving_R2)
     return Reg_GH
+
+#%% Warp cube
+def warp_flt_img_3D(warp_matrix,sz_fixed,Moving_sitk):
+    # Moving_sitk_registered=np.zeros_like(Moving_sitk)
+    sz_moving=Moving_sitk.shape
+    Moving_sitk_registered=np.zeros((sz_fixed[0],sz_fixed[1],sz_moving[2]))
+    for page in range(sz_moving[2]):
+        Moving_sitk_registered[:,:,page] = cv2.warpAffine(Moving_sitk[:,:,page], warp_matrix, (sz_fixed[1],sz_fixed[0]), flags=cv2.INTER_LINEAR + cv2.WARP_INVERSE_MAP)
+    return Moving_sitk_registered
+    
