@@ -6,12 +6,16 @@ Created on Mon Jul 10 18:20:38 2023
 @author: Arun PDRA, THT
 """
 #%%
-
+import os
+import sys
 import cv2
 import numpy as np
 from skimage.metrics import normalized_root_mse as nrmse
 from skimage.metrics import normalized_mutual_information as nmi
 from skimage.metrics import structural_similarity as ssim
+
+from scipy.io import savemat,loadmat
+import time
 #%% Masking function for the Histology Image
 
 def coreg_img_pre_process(hist_img,thresh):
@@ -218,11 +222,94 @@ def perf_reg(Fixed_N,Moving_R2):
     return Reg_GH
 
 #%% Warp cube
-def warp_flt_img_3D(warp_matrix,sz_fixed,Moving_sitk):
+def warp_flt_img_3D(warp_matrix,sz_fixed,Moving_sitk_1):
     # Moving_sitk_registered=np.zeros_like(Moving_sitk)
+    Moving_sitk=cv2.resize(Moving_sitk_1, (sz_fixed[1],sz_fixed[0]), interpolation= cv2.INTER_NEAREST)
     sz_moving=Moving_sitk.shape
+    Moving_datatype=str(Moving_sitk_1.dtype)
     Moving_sitk_registered=np.zeros((sz_fixed[0],sz_fixed[1],sz_moving[2]))
     for page in range(sz_moving[2]):
         Moving_sitk_registered[:,:,page] = cv2.warpAffine(Moving_sitk[:,:,page], warp_matrix, (sz_fixed[1],sz_fixed[0]), flags=cv2.INTER_LINEAR + cv2.WARP_INVERSE_MAP)
-    return Moving_sitk_registered
+    Moving_sitk_registered=Moving_sitk_registered.astype(Moving_datatype)
+    return Moving_sitk_registered 
+#%%
+def coreg_hist_int_flt(base_dir):
+    file_extension_type = ('.tif',) # , '.exe', 'jpg', '...')
+    for hist_file in os.listdir(base_dir):
+        if hist_file.endswith(file_extension_type) and hist_file.startswith('R'):
+            print("Found a file {}".format(hist_file)) 
+            hist_img=cv2.imread(f"{base_dir}/{hist_file}")
+            
+        # else:
+            # print("File with the name was not found") 
+
+    if not 'hist_img' in locals():
+        sys.exit("Execution was stopped due to Hist Image file was not found error")
+
+    ##%% Coregistration
+
+    # Hist Image parameters
+    hist_img_shape=hist_img.shape
+    pix_x_hist=0.22
+    pix_x_hist=0.22
+
+    ##%% Hist Image pre-processing for registration
+    thresh=200
+
+    ##%% Mask applied
+    hist_img_hsv_f,hist_img_f,hist_img_gray_f,hist_mask,hist_img_gray=coreg_img_pre_process(hist_img,thresh)
+
+    ##%% Stitched core mat file loading
+
+    core_mat_cont_file=base_dir+'/core_stitched.mat'
+    # core_mat_contents=h5py.File(core_mat_cont_file,'r+')
+    core_mat_contents=loadmat(core_mat_cont_file)
+    core_mat_contents_list=list(core_mat_contents.keys())
+
+    stitch_intensity_ref=core_mat_contents['stitch_intensity']
+    stitch_intensity=stitch_intensity_ref[()]
+
+    stitch_intensity_cube_ref=core_mat_contents['stitch_intensity_cube']
+    stitch_intensity_cube=stitch_intensity_cube_ref[()]
+
+    stitch_flt_cube_ref=core_mat_contents['stitch_flt_cube']
+    stitch_flt_cube=stitch_flt_cube_ref[()]
+
+
+    ##%% Saturation - Hist Registration
+    Fixed=stitch_intensity
+    Moving=hist_img_hsv_f[:,:,1]
+    NofFeaturs=1000
+    NofIterations=10000
+
+    Fixed_N, Moving_N=prepare_img_4_reg_Fixed_changedatatype(Fixed,Moving)
+
+    tic = time.perf_counter()
+    Moving_R3, warp_matrix, cc=Affine_OpCV_2D(Fixed_N,Moving_N,NofIterations)
+    toc = time.perf_counter()
+    Affine_time=(toc-tic)/60
+    print('Affine: %s'%Affine_time)
+    mdict={'warp_matrix':warp_matrix}
+    savemat(f"{base_dir}/warp_matrix.mat", mdict)
+
+    ##%% Registration Evaluation
+
+    Reg_SH=perf_reg(Fixed_N,Moving_R3)
+
+    ##%% Co-registration for the whole core - hyperspectral image cube
+
+    # Need to apply mask for 3D
+    sz_fixed=Fixed_N.shape
+    Moving_sitk_int=stitch_intensity_cube
+    Moving_sitk_registered_int=stitch_intensity_cube
+    # Moving_sitk_registered_int=cr.warp_flt_img_3D(warp_matrix,sz_fixed,Moving_sitk_int)
+    Moving_sitk_flt=stitch_flt_cube
+    Moving_sitk_registered_flt=stitch_flt_cube
+    # Moving_sitk_registered_flt=cr.warp_flt_img_3D(warp_matrix,sz_fixed,Moving_sitk_flt)
+
+
+    ##%%
+    Moving_sitk=hist_img_f
+    Moving_R4=warp_flt_img_3D(warp_matrix,sz_fixed,Moving_sitk)
+    cv2.imwrite(f"{base_dir}/hist_registered.tiff", Moving_R4)
     

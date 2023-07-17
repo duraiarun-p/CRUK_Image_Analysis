@@ -25,10 +25,10 @@ import time
 
 base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-2_20230215/Mat_output'
 base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-9_20230222/Mat_output'
-# base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-13_20230226/Mat_output'
-# base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-3_Col-5_20230218/Mat_output2'
-# base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-4_Col-1_20230214/Mat_output'
-# base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-6_Col-10_20230223/Mat_output'
+base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-13_20230226/Mat_output'
+base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-3_Col-5_20230218/Mat_output2'
+base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-4_Col-1_20230214/Mat_output2'
+base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-6_Col-10_20230223/Mat_output2'
 
 #%% Hist Image Loading with assertion
 #Loading Hist image automatically
@@ -112,7 +112,7 @@ plt.show()
 #%% Co-registration for the whole core - hyperspectral image cube
 
 # Need to apply mask for 3D
-# sz_fixed=Fixed_N.shape
+sz_fixed=Fixed_N.shape
 Moving_sitk_int=stitch_intensity_cube
 Moving_sitk_registered_int=stitch_intensity_cube
 # Moving_sitk_registered_int=cr.warp_flt_img_3D(warp_matrix,sz_fixed,Moving_sitk_int)
@@ -121,19 +121,30 @@ Moving_sitk_registered_flt=stitch_flt_cube
 # Moving_sitk_registered_flt=cr.warp_flt_img_3D(warp_matrix,sz_fixed,Moving_sitk_flt)
 
 
+#%%
+Moving_sitk=hist_img_f
+Moving_R4=cr.warp_flt_img_3D(warp_matrix,sz_fixed,Moving_sitk)
+cv2.imwrite(f"{base_dir}/hist_registered.tiff", Moving_R4)
+
+
+
 
 #%%
 page=50
 plt.figure(7)
-plt.subplot(2,2,1)
-plt.imshow(Moving_sitk_int[:,:,page],cmap='gray')
-plt.colorbar()
-plt.subplot(2,2,2)
-plt.imshow(Moving_sitk_registered_int[:,:,page],cmap='gray')
-plt.colorbar()
-plt.subplot(2,2,3)
-plt.imshow(Moving_sitk_flt[:,:,page],cmap='gray')
-plt.colorbar()
-plt.subplot(2,2,4)
-plt.imshow(Moving_sitk_registered_flt[:,:,page],cmap='gray')
-plt.colorbar()
+# plt.subplot(2,2,1)
+# plt.imshow(Moving_sitk_int[:,:,page],cmap='gray')
+# plt.colorbar()
+# plt.subplot(2,2,2)
+# plt.imshow(Moving_sitk_registered_int[:,:,page],cmap='gray')
+# plt.colorbar()
+# plt.subplot(2,2,3)
+# plt.imshow(Moving_sitk_flt[:,:,page],cmap='gray')
+# plt.colorbar()
+# plt.subplot(2,2,4)
+# plt.imshow(Moving_sitk_registered_flt[:,:,page],cmap='gray')
+# plt.colorbar()
+plt.subplot(1,2,1)
+plt.imshow(hist_img)
+plt.subplot(1,2,2)
+plt.imshow(Moving_R4)
