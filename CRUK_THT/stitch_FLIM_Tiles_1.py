@@ -25,8 +25,8 @@ from coreg_lib import coreg_img_pre_process
 # base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-9_20230222/Mat_output'
 # base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-13_20230226/Mat_output'
 # base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-3_Col-5_20230218/Mat_output2'
-# base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-4_Col-1_20230214/Mat_output'
-base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-6_Col-10_20230223/Mat_output'
+# base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/RT/Row-4_Col-1_20230214/Mat_output2'
+base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/RT/Row-6_Col-10_20230223/Mat_output2'
 
 #%%
 
@@ -342,6 +342,7 @@ plt.title('Mat stitched')
 #     print('Break')
 
 stitch_intensity_1 = np.zeros([stitch_img_shape[0], stitch_img_shape[1]], dtype=np.uint16)
+
 stitch_intensity_cube_f_1  = np.zeros([stitch_img_shape[1], stitch_img_shape[0], no_of_chs], dtype=np.uint16)
 stitch_flt_cube_f_1  = np.zeros([stitch_img_shape[1], stitch_img_shape[0], no_of_chs], dtype=np.uint16)
 
@@ -352,11 +353,27 @@ for page in range(no_of_chs):
     stitch_intensity_cube_f_1[:,:,page]=np.fliplr(np.flipud(stitch_intensity_cube[:,:,page]))
     stitch_flt_cube_f_1[:,:,page]=np.fliplr(np.flipud(stitch_flt_cube[:,:,page]))
     
-del stitch_intensity, stitch_intensity_cube_f, stitch_flt_cube_f
-stitch_intensity=stitch_intensity_1
-stitch_intensity_cube_f=stitch_intensity_cube_f_1
-stitch_flt_cube_f=stitch_flt_cube_f_1
+stitch_intensity_cube_f_2  = np.zeros([stitch_img_shape[0], stitch_img_shape[1], no_of_chs], dtype=np.uint16)
+stitch_flt_cube_f_2  = np.zeros([stitch_img_shape[0], stitch_img_shape[1], no_of_chs], dtype=np.uint16)
+
+for page in range(no_of_chs):
+    stitch_intensity_cube_f_1_page=stitch_intensity_cube_f_1[:,:,page]
+    stitch_flt_cube_f_1_page=stitch_flt_cube_f_1[:,:,page]
+    stitch_intensity_cube_f_2[:,:,page]=np.fliplr(cv2.rotate(stitch_intensity_cube_f_1_page,cv2.ROTATE_90_CLOCKWISE))
+    stitch_flt_cube_f_2[:,:,page]=np.fliplr(cv2.rotate(stitch_flt_cube_f_1_page,cv2.ROTATE_90_CLOCKWISE))
     
+
+
+
+del stitch_intensity, stitch_intensity_cube_f, stitch_flt_cube_f
+
+
+
+stitch_intensity=stitch_intensity_1
+stitch_intensity_cube_f=stitch_intensity_cube_f_2
+stitch_flt_cube_f=stitch_flt_cube_f_2
+stitch_flt_cube_f[stitch_flt_cube_f>10]=0
+#%%    
 plt.figure(50)
 plt.subplot(1,3,1)
 plt.imshow(hist_img_f,cmap='gray')
@@ -367,6 +384,19 @@ plt.title('Fiji Output')
 plt.subplot(1,3,3)
 plt.imshow(stitch_intensity,cmap='gray')
 plt.title('Mat stitched')
+# plt.show()
+
+page=150
+plt.figure(51)
+plt.subplot(1,3,1)
+plt.imshow(stitch_intensity,cmap='gray')
+plt.title('Mat stitched')
+plt.subplot(1,3,2)
+plt.imshow(stitch_intensity_cube_f[:,:,page],cmap='gray')
+plt.title('Int ')
+plt.subplot(1,3,3)
+plt.imshow(stitch_flt_cube_f[:,:,page],cmap='gray')
+plt.title('Flt ')
 # plt.show()
 
 #%%

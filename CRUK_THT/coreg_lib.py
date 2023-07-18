@@ -312,4 +312,4 @@ def coreg_hist_int_flt(base_dir):
     Moving_sitk=hist_img_f
     Moving_R4=warp_flt_img_3D(warp_matrix,sz_fixed,Moving_sitk)
     cv2.imwrite(f"{base_dir}/hist_registered.tiff", Moving_R4)
-    
+#%%
