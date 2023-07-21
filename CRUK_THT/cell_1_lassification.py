@@ -12,6 +12,8 @@ import pandas as pd
 import cv2
 import matplotlib.pyplot as plt
 import matplotlib.patches as pltpatch
+
+import numpy as np
 #%%
 base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-2_20230215/Mat_output'
 # base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-9_20230222/Mat_output'
@@ -26,6 +28,16 @@ file_check='classification_Qupath.txt'
 path_to_class_file=base_dir+'/'+file_check
 if os.path.exists(path_to_class_file)==False:
     sys.exit(f"Execution was stopped due to cell {file_check} file was not found error")
+
+#%% Validating bounding box by overlaying them on original figure
+
+file_extension_type = ('.tif',) # , '.exe', 'jpg', '...')
+for hist_file in os.listdir(base_dir):
+    if hist_file.endswith(file_extension_type) and hist_file.startswith('R'):
+        print("Found a file {}".format(hist_file)) 
+        hist_img=cv2.imread(f"{base_dir}/{hist_file}")    
+    
+
 #%% Extracting information from QuPATH classification output
 with open(path_to_class_file) as class_file:
     lines = [line.rstrip('\n') for line in class_file]
@@ -61,44 +73,74 @@ cell_perimeter=column_names.index("Cell: Perimeter")
 cell_caliper_max=column_names.index("Cell: Max caliper")
 cell_caliper_min=column_names.index("Cell: Min caliper")
 
-
+box_space=0.45
 cell_items=[]
 for item_idx in range(len(items)):
     # Bounding box x co-ordinates
-    bound_x=[items[item_idx][cell_centroid_x_ind]+(items[item_idx][cell_caliper_max])*0.5,
-              items[item_idx][cell_centroid_x_ind]-(items[item_idx][cell_caliper_max])*0.5,
-              items[item_idx][cell_centroid_x_ind]+(items[item_idx][cell_caliper_min])*0.5,
-              items[item_idx][cell_centroid_x_ind]-(items[item_idx][cell_caliper_min])*0.5
+    bound_x=[items[item_idx][cell_centroid_x_ind]+(items[item_idx][cell_caliper_max])*box_space,
+              items[item_idx][cell_centroid_x_ind]-(items[item_idx][cell_caliper_max])*box_space,
+              items[item_idx][cell_centroid_x_ind]+(items[item_idx][cell_caliper_min])*box_space,
+              items[item_idx][cell_centroid_x_ind]-(items[item_idx][cell_caliper_min])*box_space
                 ]
     bound_x=[min(bound_x),max(bound_x)]
     
-    bound_y=[items[item_idx][cell_centroid_y_ind]+(items[item_idx][cell_caliper_max])*0.5,
-              items[item_idx][cell_centroid_y_ind]-(items[item_idx][cell_caliper_max])*0.5,
-              items[item_idx][cell_centroid_y_ind]+(items[item_idx][cell_caliper_min])*0.5,
-              items[item_idx][cell_centroid_y_ind]-(items[item_idx][cell_caliper_min])*0.5
+    bound_y=[items[item_idx][cell_centroid_y_ind]+(items[item_idx][cell_caliper_max])*box_space,
+              items[item_idx][cell_centroid_y_ind]-(items[item_idx][cell_caliper_max])*box_space,
+              items[item_idx][cell_centroid_y_ind]+(items[item_idx][cell_caliper_min])*box_space,
+              items[item_idx][cell_centroid_y_ind]-(items[item_idx][cell_caliper_min])*box_space
                 ]
     bound_y=[min(bound_y),max(bound_y)]
     
-    bound_area=(bound_x[1]-bound_x[0])*(bound_y[1]-bound_y[0])
+    bound_area=abs(bound_x[1]-bound_x[0])*abs(bound_y[1]-bound_y[0])
     
     cell_item=[items[item_idx][cell_centroid_x_ind],items[item_idx][cell_centroid_y_ind],
                 items[item_idx][cell_class],items[item_idx][cell_roi],items[item_idx][cell_area],items[item_idx][cell_perimeter],
                 items[item_idx][cell_caliper_max],items[item_idx][cell_caliper_min],bound_x,bound_y,bound_area]
+    
+    # fig=plt.figure(2),
+    # plt.plot(cell_item[0],cell_item[1],marker='o', color="r")
+    # xy=(cell_item[-3][0],cell_item[-2][0]) # Choose min of bound x and y
+    # x_width=abs(cell_item[-3][0]-cell_item[-3][1])
+    # y_width=abs(cell_item[-2][0]-cell_item[-2][1])
+    # plt.plot(xy[0],xy[1],marker='o', color="k")
+    # rect=pltpatch.Rectangle(xy, x_width, y_width,linewidth=1, edgecolor='k', facecolor='none')
+    # plt.gca().add_patch(rect)
+    # plt.imshow(hist_img)
+    # plt.show()
+    
     cell_items.append(cell_item)
-#%% Validating bounding box by overlaying them on original figure
 
-file_extension_type = ('.tif',) # , '.exe', 'jpg', '...')
-for hist_file in os.listdir(base_dir):
-    if hist_file.endswith(file_extension_type) and hist_file.startswith('R'):
-        print("Found a file {}".format(hist_file)) 
-        hist_img=cv2.imread(f"{base_dir}/{hist_file}")
         
 
 #%% 
 
-plt.figure(1),
-plt.plot(cell_item[0],cell_item[1],marker='v', color="white")
-xy=(cell_item[-2],cell_item[-3])
-pltpatch.Rectangle(xy, 10, 10,linewidth=1, edgecolor='w', facecolor='none')
+fig=plt.figure(1),
+plt.plot(cell_item[0],cell_item[1],marker='o', color="r")
+xy=(cell_item[-3][0],cell_item[-2][0]) # Choose min of bound x and y
+x_width=abs(cell_item[-3][0]-cell_item[-3][1])
+y_width=abs(cell_item[-2][0]-cell_item[-2][1])
+plt.plot(xy[0],xy[1],marker='o', color="k")
+rect=pltpatch.Rectangle(xy, x_width, y_width,linewidth=1, edgecolor='k', facecolor='none')
+plt.gca().add_patch(rect)
 plt.imshow(hist_img)
 
+del cell_item
+
+#%%
+
+cell_plot_index=np.arange(len(cell_items),step=1000)
+
+fig=plt.figure(2),
+plt.imshow(hist_img),
+for cell_plt_ind in range(len(cell_plot_index)):
+    item_idx=cell_plot_index[cell_plt_ind]
+    # print(item_idx)
+    cell_item=cell_items[item_idx] 
+    plt.plot(cell_item[0],cell_item[1],marker='o', color="r")
+    xy=(cell_item[-3][0],cell_item[-2][0]) # Choose min of bound x and y
+    x_width=abs(cell_item[-3][0]-cell_item[-3][1])
+    y_width=abs(cell_item[-2][0]-cell_item[-2][1])
+    plt.plot(xy[0],xy[1],marker='o', color="k")
+    rect=pltpatch.Rectangle(xy, x_width, y_width,linewidth=1, edgecolor='k', facecolor='none')
+    plt.gca().add_patch(rect)
+    
