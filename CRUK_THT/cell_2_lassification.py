@@ -137,3 +137,9 @@ hist_img_R1=cv2.resize(hist_img,(tx_siz[0],tx_siz[1]), interpolation= cv2.INTER_
 
 
 #%% Extracting Landmarks for 1st stage liner fitting
+
+
+
+#%% Linear fit to transform the original pixel coordinates into resized pixel coordinates
+# This is carried out because the scaling based pixel coordinates changes location 
+# eventually risking the erroneous training and classification
