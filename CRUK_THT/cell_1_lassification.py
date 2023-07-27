@@ -23,7 +23,7 @@ base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/
 # base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/RT/Row-6_Col-10_20230223/Mat_output2'
 #%% File Check
 
-file_check='classification_Qupath.txt'
+file_check='classification_QuPath.txt'
 
 path_to_class_file=base_dir+'/'+file_check
 if os.path.exists(path_to_class_file)==False:
@@ -129,8 +129,8 @@ for item_idx in range(len(items)):
 # rect=pltpatch.Rectangle(xy, x_width, y_width,linewidth=1, edgecolor='k', facecolor='none')
 # plt.gca().add_patch(rect)
 # plt.imshow(hist_img)
-
-# del cell_item
+#%%
+del cell_item
 
 #%% Test Points
 
@@ -142,9 +142,11 @@ plt.imshow(hist_img),
 for cell_plt_ind in range(len(cell_plot_index)):
     item_idx=cell_plot_index[cell_plt_ind]
     # print(item_idx)
-    cell_item=cell_items[item_idx] 
+    # cell_item=np.round(np.array(cell_items[item_idx],dtype=int)
+    cell_item=np.array(cell_items[item_idx])
+    cell_item_p=np.round(np.array([cell_item[0],cell_item[1]]))
     # point_ox.append(cell_item)
-    plt.plot(cell_item[0],cell_item[1],marker='o', color="r")
+    plt.plot(cell_item_p[0],cell_item_p[1],marker='o', color="r")
     xy=(cell_item[-3][0],cell_item[-2][0]) # Choose min of bound x and y
     x_width=abs(cell_item[-3][0]-cell_item[-3][1])
     y_width=abs(cell_item[-2][0]-cell_item[-2][1])
@@ -242,7 +244,7 @@ point_tx=[]
 # plt.plot(cell_item_tx_f[0],cell_item_tx_f[1],marker='o', color="r")
 for cell_plt_ind in range(len(cell_plot_index)):
     item_idx=cell_plot_index[cell_plt_ind]
-    cell_item_tx=np.array(cell_items[item_idx][:2])
+    cell_item_tx=np.round(np.array(cell_items[item_idx][:2]))
     cell_item_tx_f=np.zeros_like(cell_item_tx)
     cell_item_tx_f[0]=((cell_item_tx[0]-ox_mid[0])*tx_f_siz1[0]) + tx_mid[0]
     cell_item_tx_f[1]=((cell_item_tx[1]-ox_mid[1])*tx_f_siz1[1]) + tx_mid[1]

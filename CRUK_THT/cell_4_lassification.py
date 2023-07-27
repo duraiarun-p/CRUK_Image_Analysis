@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Tue Jul 25 00:24:56 2023
+Created on Thu Jul 27 11:46:22 2023
 
 @author: Arun PDRA, THT
 """
@@ -118,6 +118,7 @@ for cell_plt_ind in range(len(cell_plot_index)):
     # print(item_idx)
     cell_item=cell_items[item_idx] 
     # point_ox.append(cell_item)
+    
     plt.plot(cell_item[0],cell_item[1],marker='o', color="r")
     xy=(cell_item[-3][0],cell_item[-2][0]) # Choose min of bound x and y
     x_width=abs(cell_item[-3][0]-cell_item[-3][1])
@@ -125,68 +126,3 @@ for cell_plt_ind in range(len(cell_plot_index)):
     plt.plot(xy[0],xy[1],marker='o', color="k")
     rect=pltpatch.Rectangle(xy, x_width, y_width,linewidth=1, edgecolor='k', facecolor='none')
     plt.gca().add_patch(rect)
-#%% Place for validation of Geometric Transform
-tx_siz=hist_img_R.shape # Registered Image Shape
-ox_siz=hist_img.shape # Original Image Shape
-tx_f_siz=np.round((np.array(ox_siz)/np.array(tx_siz)))
-tx_f_siz1=((np.array(tx_siz)/np.array(ox_siz)))# Proper scale factor for this implemetnation
-ox_mid=(np.array(ox_siz[:2])-1/2)# Mid point of original image
-tx_mid=(np.array(tx_siz[:2])-1/2)# Mid point of registered image
-
-hist_img_R1=cv2.resize(hist_img,(tx_siz[0],tx_siz[1]), interpolation= cv2.INTER_NEAREST) # Resizing original image for 1st stage transform
-
-
-#%% Extracting Landmarks for 1st stage liner fitting
-clicks=20
-img=hist_img_R1
-
-# posList = list()
-point_matrix = np.zeros((clicks,2),np.int32)
-counter=0
-def onMouse(event, x, y, flags, param):
-   # global posList
-   global counter
-   if event == cv2.EVENT_LBUTTONDOWN and counter < clicks:
-       print('x = %d, y = %d'%(x, y))
-       cv2.imshow('Img R', img)
-       cv2.putText(img, str(x) + ',' +
-                            str(y), (x,y), cv2.FONT_HERSHEY_SIMPLEX,
-                            1, (255, 0, 0), 2)
-       point_matrix[counter:] = x,y
-       # posList.append(point_matrix)
-       counter = counter + 1
-
-cv2.imshow('Img R', img)
-cv2.setMouseCallback('Img R', onMouse)
-# posNp = np.array(posList)
-
-img1=hist_img
-
-point_matrix1 = np.zeros((clicks,2),np.int32)
-counter1=0
-def onMouse1(event, x, y, flags, param):
-   # global posList
-   global counter1
-   if event == cv2.EVENT_LBUTTONDOWN and counter < clicks:
-       print('x = %d, y = %d'%(x, y))
-       cv2.imshow('Img H', img1)
-       cv2.putText(img1, str(x) + ',' +
-                            str(y), (x,y), cv2.FONT_HERSHEY_SIMPLEX,
-                            1, (255, 0, 0), 2)
-       point_matrix1[counter1:] = x,y
-       # posList.append(point_matrix)
-       counter1 = counter1 + 1
-
-cv2.imshow('Img H', img1)
-cv2.setMouseCallback('Img H', onMouse1)
-
-print("project immediately")
-i_user = input("Press Enter to continue: ")
-#%% Saving again to get the coordinates
-mdic={'point_matrix_H':point_matrix1,'point_matrix_R':point_matrix}
-savemat(f'{base_dir}/points.mat',mdic)
-
-
-#%% Linear fit to transform the original pixel coordinates into resized pixel coordinates
-# This is carried out because the scaling based pixel coordinates changes location 
-# eventually risking the erroneous training and classification
