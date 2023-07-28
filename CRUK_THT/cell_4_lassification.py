@@ -126,3 +126,69 @@ for cell_plt_ind in range(len(cell_plot_index)):
     plt.plot(xy[0],xy[1],marker='o', color="k")
     rect=pltpatch.Rectangle(xy, x_width, y_width,linewidth=1, edgecolor='k', facecolor='none')
     plt.gca().add_patch(rect)
+    
+#%% Conversion of the Ground Truth pixel coordinates into registered coordinates
+siz_tx=hist_img_R.shape # Registered Image Shape
+siz_ox=hist_img.shape # Original Image Shape
+#axis must be swapped for OpenCV and has been done with the coreg lib as well
+hist_img_R1=cv2.resize(hist_img,(siz_tx[1],siz_tx[0]), interpolation= cv2.INTER_NEAREST)
+
+def OCV_Homography_2D(imgRef_grey,imgTest_grey,NFN):
+    height, width = imgRef_grey.shape
+    imgTest_grey=cv2.resize(imgTest_grey, (width,height), interpolation= cv2.INTER_NEAREST)
+    orb_detector = cv2.ORB_create(nfeatures=NFN)
+    # Extract key points and descriptors for both images
+    keyPoint1, des1 = orb_detector.detectAndCompute(imgTest_grey, None)
+    keyPoint2, des2 = orb_detector.detectAndCompute(imgRef_grey, None)    
+    # Match features between two images using Brute Force matcher with Hamming distance
+    matcher = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
+    # matcher = cv2.BFMatcher()
+    # Match the two sets of descriptors.
+    matches = matcher.match(des1, des2)     
+    # # Sort matches on the basis of their Hamming distance.
+    matches = sorted(matches, key=lambda x: x.distance)       
+    # Take the top 90 % matches forward.
+    matches = matches[:int(len(matches) * 0.9)]
+    no_of_matches = len(matches)  
+    # Define 2x2 empty matrices
+    p1 = np.zeros((no_of_matches, 2))
+    p2 = np.zeros((no_of_matches, 2))
+     
+    # Storing values to the matrices
+    for i in range(len(matches)):
+        p1[i, :] = keyPoint1[matches[i].queryIdx].pt
+        p2[i, :] = keyPoint2[matches[i].trainIdx].pt
+     
+    # Find the homography matrix.
+    homography, mask = cv2.findHomography(p1, p2, cv2.RANSAC)
+    
+    # Use homography matrix to transform the unaligned image wrt the reference image.
+    aligned_img = cv2.warpPerspective(imgTest_grey, homography, (width, height))
+    return aligned_img, homography, mask
+
+imgRef_grey=hist_img_R1[:,:,1]
+imgTest_grey=hist_img[:,:,1]
+NFN=5000
+hist_img_R1_aligned, homography, mask=OCV_Homography_2D(imgRef_grey,imgTest_grey,NFN)
+
+homography_inv=np.linalg.pinv(homography)
+#%%
+# plt.figure(3)
+# plt.imshow(hist_img_R1_aligned)
+
+#%%
+plt.figure(4)
+plt.imshow(hist_img_R1)
+for cell_plt_ind in range(len(cell_plot_index)):
+    item_idx=cell_plot_index[cell_plt_ind]
+    cell_item_tx=cell_items[item_idx][:2]
+    cell_item_tx.append(1)
+    cell_item_tx=np.array(cell_item_tx,dtype=np.int32)
+    # old_Pnt=cell_item_tx/[siz_ox[0],siz_ox[1],1]
+    # nP1=homography@oP1
+    # new_Pnt=np.dot(old_Pnt,homography)
+    
+    # new_Pnt=new_Pnt*[siz_tx[0],siz_tx[1],1]
+    new_Pnt=cv2.perspectiveTransform(cell_item_tx,homography_inv)
+    
+    plt.plot(new_Pnt[0],new_Pnt[1],marker='o', color="r")
