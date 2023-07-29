@@ -1,11 +1,11 @@
-clc;clear;close all;
+clc;clear;close all force;
 %%
 % base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-2_20230215/Mat_output';
-base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-9_20230222/Mat_output';
+% base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-9_20230222/Mat_output';
 % base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-13_20230226/Mat_output';
 % base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-3_Col-5_20230218/Mat_output2';
 % base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/RT/Row-4_Col-1_20230214/Mat_output2';
-% base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/RT/Row-6_Col-10_20230223/Mat_output2';
+base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/RT/Row-6_Col-10_20230223/Mat_output2';
 %%
 %% Load stitched and masked flt cubes
 load("core_stitched_masked.mat")
@@ -29,10 +29,10 @@ movingRegistered_rgb=uint8(zeros([fixed_siz,3]));
 moving=hist_img(:,:,2);
 moving_resized=imresize(moving,fixed_siz);
 [optimizer,metric] = imregconfig("multimodal");
-optimizer.InitialRadius = 0.0001;
+optimizer.InitialRadius = 0.009;
 optimizer.Epsilon = 1.5e-4;
 optimizer.GrowthFactor = 1.01;
-optimizer.MaximumIterations = 300;
+optimizer.MaximumIterations = 10000;
 
 % movingRegistered = imregister(moving_resized,fixed,"affine",optimizer,metric);
 tform_HF = imregtform(moving_resized,fixed,"affine",optimizer,metric);
@@ -74,3 +74,7 @@ plot(r_new1,c_new1, 'r+', 'MarkerSize', 30, 'LineWidth', 2);
 % plot(mid_r_new1,mid_c_new1, 'r+', 'MarkerSize', 30, 'LineWidth', 2);
 hold off;
 title('Registered RGB - with points')
+%% Save registration results
+
+imwrite(movingRegistered_rgb,'coreg_HE.tiff');
+save('tforms.mat','tform_HF','T_resize');
