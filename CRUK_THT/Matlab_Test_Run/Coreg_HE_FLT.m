@@ -1,11 +1,11 @@
-clc;clear;close all force;
+clc;clear;close all;
 %%
 % base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-2_20230215/Mat_output';
-% base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-9_20230222/Mat_output';
+base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-9_20230222/Mat_output';
 % base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-13_20230226/Mat_output';
 % base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-3_Col-5_20230218/Mat_output2';
 % base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/RT/Row-4_Col-1_20230214/Mat_output2';
-base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/RT/Row-6_Col-10_20230223/Mat_output2';
+% base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/RT/Row-6_Col-10_20230223/Mat_output2';
 %%
 %% Load stitched and masked flt cubes
 load("core_stitched_masked.mat")
@@ -44,6 +44,8 @@ end
 %% Visualisation
 x=fixed_siz(1)/2;
 y=fixed_siz(2)/2;
+x=floor(1.448300000000000e+03);
+y=floor(3.060200000000000e+03);
 figure(5);
 imshow(hist_img);
 gca;
@@ -76,5 +78,5 @@ hold off;
 title('Registered RGB - with points')
 %% Save registration results
 
-imwrite(movingRegistered_rgb,'coreg_HE.tiff');
-save('tforms.mat','tform_HF','T_resize');
+% imwrite(movingRegistered_rgb,'coreg_HE.tiff');
+% save('tforms.mat','tform_HF','T_resize');
