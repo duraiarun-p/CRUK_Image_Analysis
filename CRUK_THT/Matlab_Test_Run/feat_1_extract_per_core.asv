@@ -1,14 +1,11 @@
 clc;clear;close all;
 %% Paths
-% base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-2_20230215/Mat_output';
-% base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-9_20230222/Mat_output';
-% base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-13_20230226/Mat_output';
+base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-2_20230215/Mat_output';
+base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-9_20230222/Mat_output';
+base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-13_20230226/Mat_output';
 % base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-3_Col-5_20230218/Mat_output2';
-% base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/RT/Row-4_Col-1_20230214/Mat_output2';
+base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/RT/Row-4_Col-1_20230214/Mat_output2';
 % base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/RT/Row-6_Col-10_20230223/Mat_output2';
-
-
-base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour/Row-1_Col-9_20230222/FLT_IMG_DIR/Stitched';
 %% Classification file extraction 
 cd(base_dir)
 
@@ -59,10 +56,10 @@ for cell_ind=1:noofcells
 % col_start=floor(bound_txed(cell_ind,2));
 % col_stop=floor(bound_txed(cell_ind,4));
 
-row_start=max(floor(bound_txed(cell_ind,1)),1);
-row_stop=max(floor(bound_txed(cell_ind,3)),1);
-col_start=max(floor(bound_txed(cell_ind,2)),1);
-col_stop=max(floor(bound_txed(cell_ind,4)),1);
+row_start=max(floor(bound_txed(cell_ind,1));
+row_stop=max(floor(bound_txed(cell_ind,3));
+col_start=max(floor(bound_txed(cell_ind,2));
+col_stop=max(floor(bound_txed(cell_ind,4));
 
 cell_box=flt_int(row_start:row_stop,col_start:col_stop,:);
 cell_box=reshape(imresize3(cell_box,[new_cell_width,new_cell_width,flt_siz(3)]),new_cell_width*new_cell_width,flt_siz(3));
@@ -75,9 +72,6 @@ feat_matrix(:,cell_ind)=cell_box(:);
 end
 
 %%
-
-
-
 % dataSource = groundTruthDataSource(cells_img);
 grnd_truth=cell2table(cells_img);
 % grnd_truth(:,2)=class_grnd_trth;
@@ -90,7 +84,7 @@ class_1_ind=find(class_grnd_trth==1);
 class_2_ind=find(class_grnd_trth==2);
 class_3_ind=find(class_grnd_trth==3);
 
-class_1=class_grnd_trth(class_1_ind(1:nooffeat*2));
+class_1=class_grnd_trth(class_1_ind(1:nooffeat));
 class_2=class_grnd_trth(class_2_ind(1:nooffeat));
 class_3=class_grnd_trth(class_3_ind(1:nooffeat));
 
@@ -98,7 +92,7 @@ class_3=class_grnd_trth(class_3_ind(1:nooffeat));
 % feat_2=feat_matrix(class_2_ind(1:1000),:);
 % feat_3=feat_matrix(class_3_ind(1:1000),:);
 
-feat_1=feat_matrix(:,class_1_ind(1:nooffeat*2));
+feat_1=feat_matrix(:,class_1_ind(1:nooffeat));
 feat_2=feat_matrix(:,class_2_ind(1:nooffeat));
 feat_3=feat_matrix(:,class_3_ind(1:nooffeat));
 
@@ -110,8 +104,5 @@ class_grnd_trth1=[class_1;class_2;class_3];
 % class_grnd_trth1=class_grnd_trth1';% check here
 feat_matrix1=feat_matrix1';
 class_data_1=table(feat_matrix1,class_grnd_trth1);
-
-feat_matrix=feat_matrix';
-class_data=table(feat_matrix,class_grnd_trth);
-%% Save features as Mat file
-% save('feat_flt_1.mat','class_data_1');
+%%
+save('feat_flt.mat','class_data_1');
