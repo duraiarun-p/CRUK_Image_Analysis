@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Wed Aug 23 09:25:16 2023
+Created on Wed Aug 23 21:36:58 2023
 
 @author: Arun PDRA, THT
 """
+
 #%%
 from scipy.io import savemat,loadmat
 import numpy as np
