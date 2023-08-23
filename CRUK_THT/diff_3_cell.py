@@ -48,7 +48,7 @@ del label_ref, feat_ref
 label=np.squeeze(label)
 feat=np.transpose(feat)
 
-X_train, X_test, y_train, y_test = train_test_split(feat, label, test_size=0.33, random_state=0)
+X_train, X_test, y_train, y_test = train_test_split(feat, label, test_size=0.33, random_state=10)
 
 #%% Classification Model and hyperparameters
 # #Linear SVM
@@ -64,8 +64,23 @@ clf = RandomForestClassifier(random_state=0)
 # perf=clf.score(feat,label)
 start_time_0_I=timer()
 
-clf.fit(X_train,y_train)
+# clf.fit(X_train,y_train)
 # perf_train=clf.score(X_train,y_train)
+
+#code not checked or tested
+from sklearn.model_selection import KFold
+scores=[]
+cv_fold=5
+kFold=KFold(n_splits=cv_fold,random_state=42,shuffle=True)
+for train_index,test_index in kFold.split(feat):
+    # print("Train Index: ", train_index, "\n")
+    # print("Test Index: ", test_index)   
+    X_train_1, X_test_1, y_train_1, y_test_1 = feat[train_index,:], feat[test_index,:], label[train_index], label[test_index]
+    clf.fit(X_train_1, y_train_1)
+    scores.append(clf.score(X_test_1, y_test_1))
+
+perf_cv=np.mean(scores)
+
 
 
 predictions_train = clf.predict(X_train)
