@@ -12,9 +12,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 #%%
 
-img=cv2.imread('/home/arun/Pictures/Test.jpg')
+# img=cv2.imread('/home/arun/Pictures/Test.jpg')
+img=cv2.imread('/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/CRUK_THT/Test.jpg')
 
-orow,ocol,och=img.shape
+ocol,orow,och=img.shape
 
 
 
@@ -29,18 +30,24 @@ plt.plot(oP[0],oP[1],marker='o',color='r')
 #%%
 # nrow,ncol=int(orow/2),int(ocol/2)
 
-nrow,ncol=1250,1350
+nrow,ncol=2000,1000
 
 img_res=cv2.resize(img,(ncol,nrow),interpolation=cv2.INTER_NEAREST)
-nrow_rat,ncol_rat=nrow/orow,ncol/orow
+nrow_rat,ncol_rat=nrow/orow,ncol/ocol
+
+# oP[0]=oP[0]-(orow/2-1)
+# oP[1]=oP[0]-(ocol/2-1)
 
 nP=np.zeros_like(oP)
 nP[0]=oP[0]*nrow_rat
 nP[1]=oP[1]*ncol_rat
 
-plt.figure(3)
-plt.imshow(img_res)
-plt.plot(nP[0],nP[1],marker='o',color='r')
+# nP[0]=nP[0]+(nrow/2-1)
+# nP[1]=nP[0]+(ncol/2-1)
+
+# plt.figure(3)
+# plt.imshow(img_res)
+# plt.plot(nP[0],nP[1],marker='o',color='r')
 
 #%%
 def OCV_Homography_2D(imgRef_grey,imgTest_grey,NFN):
@@ -106,8 +113,8 @@ imgTest_grey=img[:,:,1]
 NFN=5000
 aligned_img, homography, mask=OCV_Homography_2D(imgRef_grey,imgTest_grey,NFN)
 #%%
-plt.figure(10)
-plt.imshow(aligned_img,cmap='gray')
+# plt.figure(10)
+# plt.imshow(aligned_img,cmap='gray')
 #%%
 # oP1=[250,1000]
 
@@ -132,4 +139,23 @@ nP2a=nP2*[nrow,ncol,1]
 #%%
 plt.figure(11)
 plt.imshow(img_res)
-plt.plot(nP2a[0],nP2a[1],marker='o',color='r')
+plt.plot(nP2a[1],nP2a[0],marker='o',color='r')
+#%%
+nP=np.zeros_like(oP)
+
+mid_r=nrow/2
+mid_c=ncol/2
+
+
+
+
+# nP[1] = mid_r
+# nP[0] = mid_c
+
+nP[0] = mid_r+ (nrow_rat*(oP[0]-mid_r))
+nP[1] = mid_c+ (ncol_rat*(oP[1]-mid_c))
+
+plt.figure(12)
+plt.imshow(img_res)
+plt.plot(nP[0],nP[1],marker='o',color='r')
+plt.plot(mid_c,mid_r,marker='o',color='g')

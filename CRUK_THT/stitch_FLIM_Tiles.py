@@ -42,6 +42,8 @@ lifetime_files = []
 
 positions = {}
 shifts = {}
+positions_new={}
+trunc_slice={}
 max_pos_1 = 0
 max_pos_2 = 0
 min_pos_1 = 10000
@@ -92,7 +94,11 @@ for line_num, line in enumerate(lines):
     for key, value in positions.items():
         # positions[key] = [value[0] + shift_x, value[1] + shift_y]
         
-        positions[key] = [value[0], value[1]]
+        print('Positions pre shift: %s'%positions[key])
+        shift_value=shifts[key]
+        positions_new[key] = [value[0] + shift_value[0], value[1] + shift_value[1]]
+        print('Positions pos shift: %s'%positions_new[key])
+        trunc_slice[key]=[shift_value[0],shift_value[1]]
    
     
 no_of_chs=310
@@ -149,7 +155,7 @@ for t_i, p in positions.items():
     # stitch_intensity[p[1]:p[1]+tile_size, p[0]:p[0]+tile_size] = intensity1
     # stitch_intensity_arr[p[1]:p[1]+tile_size, p[0]:p[0]+tile_size] = intensity1
     
-    # stitch_intensity_arr[p[0]:p[0]+tile_size, p[1]:p[1]+tile_size] = intensity1
+    stitch_intensity_arr[p[0]:p[0]+tile_size, p[1]:p[1]+tile_size] = intensity1[shift_value[0]:tile_size,shift_value[1]:tile_size]
     
     # stitch_intensity_arr[p1[0]:p1[0]+tile_size, p1[1]:p1[1]+tile_size] = intensity1
     # stitch_intensity_arr[p1[0]:p1[0]+512, p1[1]:p1[1]+512] = intensity1
@@ -214,14 +220,14 @@ stitch_intensity=np.flipud(ndi.rotate(stitch_intensity,90))
 
 #%%
 
-# plt.figure(1)
-# plt.tight_layout()
-# plt.subplot(1,2,2)
-# plt.imshow(stitch_intensity, cmap="gray")
-# plt.title('from mat array')
-# plt.subplot(1,2,1)
-# plt.imshow(stitch_intensity_arr, cmap="gray")
-# plt.title('from img')
+plt.figure(1)
+plt.tight_layout()
+plt.subplot(1,2,2)
+plt.imshow(stitch_intensity, cmap="gray")
+plt.title('from mat array')
+plt.subplot(1,2,1)
+plt.imshow(stitch_intensity_arr, cmap="gray")
+plt.title('from img')
 
 # #%%
 # page=25

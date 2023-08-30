@@ -11,7 +11,7 @@ file_list=dir(filePath);
 [~,ind]=sort({file_list.name});
 file_list = file_list(ind);
 % first_file_path=strcat(file_list(end).folder,'\',file_list(end).name);% Windows
-first_file_path=strcat(file_list(end).folder,'/',file_list(end).name);% Linux
+% first_file_path=strcat(file_list(end).folder,'/',file_list(end).name);% Linux
 % first_file_mat_paths=dir(first_file_path);
 n_bins = 16;
 
@@ -23,6 +23,12 @@ n_bins = 16;
 % Previously hardcoded now changed with this subroutine
 file_list_names={file_list.name}; % Get file names into cell array
 data_file_index=find(contains(file_list_names,'Row')); % data file indices
+file_list_1=file_list(data_file_index);
+file_list=file_list_1;
+clear file_list_1
+% first_file_path=strcat(file_list(end).folder,'\',file_list(end).name);% Windows
+first_file_path=strcat(file_list(end).folder,'/',file_list(end).name);% Linux
+
 numberofNondataFolders=abs(length(data_file_index)-length(file_list_names));
 
 
@@ -131,10 +137,12 @@ time_LS=zeros(1,numberofRows*numberofColums);
 %     end
 % end
 
-all_files = dir(filePath);
-file_list_names={all_files.name}; % Get file names into cell array
+% all_files = dir(filePath);
+% file_list_names={all_files.name}; % Get file names into cell array
 % data_file_index=find(contains(all_files,'Row')); % data file indices
-all_files(1:numberofNondataFolders)=[];
+% all_files(1:numberofNondataFolders)=[];
+
+all_files=file_list;
 
 all_files = struct2table(all_files);
 all_files = sortrows(all_files, 'name');
@@ -220,5 +228,5 @@ end
 matcorefilename=[outputdir,'core_all','.mat'];
 save(matcorefilename,'allIntensityImages','lifetimeImageData','lifetimeAlphaData','-v7.3');
 end_time=toc;
-disp((end_time-start_time)/60);
+disp((end_time)/60);
 end

@@ -1,14 +1,32 @@
 clc;clear;close all;
 %%
 % base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-2_20230215/Mat_output';
-% % base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-9_20230222/Mat_output';
-% base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-13_20230226/Mat_output';
-% base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-3_Col-5_20230218/Mat_output2';
-% base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/RT/Row-4_Col-1_20230214/Mat_output2';
+% % % base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-9_20230222/Mat_output';
+% % base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-13_20230226/Mat_output';
+% % base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-3_Col-5_20230218/Mat_output2';
+% % base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/RT/Row-4_Col-1_20230214/Mat_output2';
 % base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/RT/Row-6_Col-10_20230223/Mat_output2';
 
 
-base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour/Row-1_Col-9_20230222/FLT_IMG_DIR/Stitched';
+% base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour/Row-1_Col-9_20230222/FLT_IMG_DIR/Stitched';
+
+base_dir_all=cell(5,1);
+base_dir_all{1,1}='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-2_20230215/Mat_output';
+base_dir_all{2,1}='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-9_20230222/Mat_output';
+base_dir_all{3,1}='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-13_20230226/Mat_output';
+% base_dir_all='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-3_Col-5_20230218/Mat_output2';
+base_dir_all{4,1}='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/RT/Row-4_Col-1_20230214/Mat_output2';
+base_dir_all{5,1}='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/RT/Row-6_Col-10_20230223/Mat_output2';
+
+% base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour/Row-1_Col-9_20230222/FLT_IMG_DIR/Stitched';
+
+for base_i = 1:length(base_dir_all)
+% for base_i = 5:5
+%     prepare_data(base_dir_all{base_i,1});
+% end
+
+% function prepare_data(base_dir)
+base_dir=base_dir_all{base_i,1};
 %% Classification file extraction 
 cd(base_dir)
 files=dir(base_dir);
@@ -20,6 +38,9 @@ file_index_classification_txt_ind=find(contains(files_names,'classification_QuPa
 file_index_tforms_ind=find(contains(files_names,'tforms'));
 
 %% 
+HE=imread('coreg_HE.tiff');
+HE_siz=size(HE);
+
 lines=readlines(files(file_index_classification_txt_ind).name);
 load(files(file_index_tforms_ind).name)
 %%
@@ -49,7 +70,7 @@ cell_caliper_max=find(column_names=="Cell: Max caliper");
 cell_caliper_min=find(column_names=="Cell: Min caliper");
 
 
-box_space=0.35;
+box_space=1;
 % cell_lines=();
 for item_idx = 1:length(lines)-1% Index for string object
     new_lines_b4_tab=lines(item_idx);
@@ -122,8 +143,16 @@ for item_idx = 1:length(lines)-1
     [r_new1,c_new1] = transformPointsForward(tform_HF,r_new,c_new);
     bound_txed(item_idx,3)=r_new1;
     bound_txed(item_idx,4)=c_new1;
+    
 
+    row_start=max(floor(bound_txed(item_idx,1)),1);
+    row_stop=min(floor(bound_txed(item_idx,3)),HE_siz(1));
+    col_start=max(floor(bound_txed(item_idx,2)),1);
+    col_stop=min(floor(bound_txed(item_idx,4)),HE_siz(2));
+
+    cell_box_HE=HE(row_start:row_stop,col_start:col_stop,:);
 end
 
 %% Save Training Data
 save('data_gt.mat',"bound_txed","class_grnd_trth","cell_items");
+end

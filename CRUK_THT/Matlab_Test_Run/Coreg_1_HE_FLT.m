@@ -7,11 +7,23 @@ clc;clear;close all;
 % base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/RT/Row-4_Col-1_20230214/Mat_output2';
 % base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/RT/Row-6_Col-10_20230223/Mat_output2';
 %%
-base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour/Row-1_Col-9_20230222/FLT_IMG_DIR/Stitched';
-%% Load stitched and masked flt cubes
-cd(base_dir)
-load("core_stitched_masked.mat")
+% base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour/Row-1_Col-9_20230222/FLT_IMG_DIR/Stitched';
 
+base_dir_all=cell(5,1);
+base_dir_all{1,1}='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-2_20230215/Mat_output';
+base_dir_all{2,1}='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-9_20230222/Mat_output';
+base_dir_all{3,1}='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-13_20230226/Mat_output';
+% base_dir_all='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-3_Col-5_20230218/Mat_output2';
+base_dir_all{4,1}='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/RT/Row-4_Col-1_20230214/Mat_output2';
+base_dir_all{5,1}='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/RT/Row-6_Col-10_20230223/Mat_output2';
+
+for base_i = 1:length(base_dir_all)
+% for base_i = 1:1
+%% Load stitched and masked flt cubes
+base_dir=base_dir_all{base_i,1};
+cd(base_dir)
+load("core_stitched_masked_TX.mat")
+%%
 
 files=dir(base_dir);
 files_names=cell(length(files),1);
@@ -22,7 +34,8 @@ file_index_H=find(contains(files_names,'Row'));
 %% Load H&E image
 hist_img=imread(files(file_index_H).name);
 hist_img_siz=size(hist_img);
-
+%%
+% stitch_intensity_masked=permute(stitch_intensity_masked,[2,1]);
 %% Registration
 
 fixed=stitch_intensity_masked;
@@ -44,10 +57,10 @@ for channel=1:3
     movingRegistered_rgb(:,:,channel)=imwarp(moving_resized_channel,tform_HF,"OutputView",imref2d(size(fixed)));
 end
 %% Visualisation
-x=fixed_siz(1)/2;
-y=fixed_siz(2)/2;
-x=floor(1.448300000000000e+03);
-y=floor(3.060200000000000e+03);
+x=fixed_siz(1)/4;
+y=fixed_siz(2)/4;
+% x=floor(1.448300000000000e+03);
+% y=floor(3.060200000000000e+03);
 figure(5);
 imshow(hist_img);
 gca;
@@ -82,3 +95,5 @@ title('Registered RGB - with points')
 
 imwrite(movingRegistered_rgb,'coreg_HE.tiff');
 save('tforms.mat','tform_HF','T_resize');
+disp(base_dir)
+end

@@ -149,4 +149,4 @@ plt.colorbar()
 # plt.colorbar()
 #%%
 mdic={'stitch_intensity_masked':stitch_intensity_masked,'stitch_intensity_cube_masked':stitch_intensity_cube_masked,'stitch_flt_cube_masked':stitch_flt_cube_masked}
-savemat(f"{base_dir}/core_stitched_masked.mat", mdic)
+# savemat(f"{base_dir}/core_stitched_masked.mat", mdic)

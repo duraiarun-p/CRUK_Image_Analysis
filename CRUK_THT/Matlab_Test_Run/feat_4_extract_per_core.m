@@ -8,7 +8,7 @@ base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/
 % base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/RT/Row-6_Col-10_20230223/Mat_output2';
 
 
-% base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour/Row-1_Col-9_20230222/FLT_IMG_DIR/Stitched';
+
 
 
 
@@ -20,12 +20,15 @@ base_dir_all{3,1}='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/
 base_dir_all{4,1}='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/RT/Row-4_Col-1_20230214/Mat_output2';
 base_dir_all{5,1}='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/RT/Row-6_Col-10_20230223/Mat_output2';
 
+% base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour/Row-1_Col-9_20230222/FLT_IMG_DIR/Stitched';
+
 for base_i = 1:length(base_dir_all)
-% for base_i = 1:1
+% for base_i = 5:5
 %     prepare_data(base_dir_all{base_i,1});
 % end
-base_dir=base_dir_all{base_i,1};
+
 % function prepare_data(base_dir)
+base_dir=base_dir_all{base_i,1};
 %% Classification file extraction 
 cd(base_dir)
 
@@ -33,24 +36,16 @@ cd(base_dir)
 HE=imread('coreg_HE.tiff');
 % Load Classification ground truth
 load('data_gt.mat');
-
 % Load FLIM images
 load("core_stitched_masked_TX.mat")
-
-% load("core_stitched_TX.mat")
-% stitch_flt_cube_masked=stitch_flt_cube;
-% stitch_intensity_cube_masked=stitch_intensity_cube;
-% stitch_intensity_masked=stitch_intensity;
-
-clear stitch_flt_cube stitch_intensity_cube stitch_intensity
 %%
-HE_siz=size(HE);
+
 % u8_flt=uint8(zeros(size(stitch_flt_cube_masked)));
 % u8_int=uint8(zeros(size(stitch_intensity_cube_masked)));
 flt_int=double(zeros(size(stitch_intensity_cube_masked)));
 flt_siz=size(stitch_intensity_cube_masked);
-% stitch_intensity_cube_masked=double(rescale(stitch_intensity_cube_masked));
-% stitch_flt_cube_masked=double(stitch_flt_cube_masked);
+stitch_intensity_cube_masked=double(rescale(stitch_intensity_cube_masked));
+stitch_flt_cube_masked=double(stitch_flt_cube_masked);
 % spec=38;
 for spec=1:flt_siz(3)
 slice_flt=stitch_flt_cube_masked(:,:,spec);
@@ -71,14 +66,18 @@ end
 figure(7),
 imshow(HE)
 %%
+HE_siz=size(HE);
 nbin=50;
+no_of_param=4;
 nopcs=50;
 new_cell_width=20;
-cell_ind=1;
+% cell_ind=1;
 no_of_classes=3;
 noofcells=length(bound_txed);
 % feat_matrix=zeros(nbin*flt_siz(3),noofcells);
-feat_matrix=zeros(flt_siz(3)*nbin,noofcells);
+% feat_matrix=zeros(flt_siz(3)*nbin,noofcells);
+feat_matrix=zeros(no_of_param*nbin,noofcells);
+% feat_matrix=zeros(no_of_param,noofcells);
 cells_img=cell(noofcells,2);
 for cell_ind=1:noofcells
 % for cell_ind=1:1
@@ -103,12 +102,41 @@ cell_box=flt_int(row_start:row_stop,col_start:col_stop,:);
 
 feat=zeros(nbin,flt_siz(3));
     for spec=1:flt_siz(3)
-    % [counts,~] = imhist(cell_box(:,:,spec),nbin);
     [counts,flt_edge,flt_bins] = histcounts(cell_box(:,:,spec),nbin);
     feat(:,spec)=counts;
     end
+    feat_1=zeros(nbin,no_of_param);
+    for nbin_i=1:nbin
+        feat_data=feat(nbin_i,:);
+        pd=fitdist(feat_data','Normal');
+        pd1 = fitdist(feat_data','Kernel','Kernel','epanechnikov');
+        p=feat_data./sum(feat_data);
+        p_log=log(p);
+        p_log(p_log==-Inf)=0;
+        H=-sum(p.*p_log);
+        feat_1(nbin_i,:)=[pd.ParameterValues,pd1.Bandwidth,H];
+    end
+
+% [counts,flt_edge,flt_bins] = histcounts(cell_box(:),nbin);
+% pd=fitdist(counts','Normal');
+% p=counts./sum(counts);
+% p_log=log(p);
+% p_log(p_log==-Inf)=0;
+% H=-sum(p.*p_log);
+% feat_1=[pd.ParameterValues,H];
 % feat_vector=rescale(feat(:));
-feat_vector=(feat(:));
+% feat_vector=(feat(:));
+
+% feat=zeros(nbin,flt_siz(3));
+%     for spec=1:flt_siz(3)
+%     % [counts,~] = imhist(cell_box(:,:,spec),nbin);
+%     [counts,flt_edge,flt_bins] = histcounts(cell_box(:,:,spec),nbin);
+%     feat(:,spec)=counts;
+%     end
+% feat_1=feat;
+
+feat_vector=(feat_1(:));
+feat_vector(isnan(feat_vector))=0;
 feat_matrix(:,cell_ind)=feat_vector;
 end
 
@@ -146,14 +174,16 @@ feat_3=feat_matrix(:,class_3_ind(1:nooffeat));
 % if any(tot_x==bck_x) && any(tot_y==bck_y) ~= 0
 %     bck_x = randi([1 flt_siz(1)],1,1);
 %     bck_y = randi([1 flt_siz(2)],1,1);
-feat_4=zeros(nbin*flt_siz(3),nooffeat);
+% feat_4=zeros(nbin*flt_siz(3),nooffeat);
+feat_4=zeros(nbin*no_of_param,nooffeat);
+% feat_4=zeros(no_of_param,nooffeat);
 class_4=zeros(nooffeat,1);
 
 
 
 %%
 
-% feat_matrix1=[feat_1;feat_2;feat_3];
+% feat_matrix1=[feat_1;feat_2;feat_3;feat_4];
 feat_matrix1=[feat_1,feat_2,feat_3,feat_4];
 % class_grnd_trth1=[class_1;class_2;class_3];
 class_grnd_trth1=[class_1;class_2;class_3;class_4];
@@ -164,16 +194,14 @@ class_data_1=table(feat_matrix1,class_grnd_trth1);
 
 feat_matrix=feat_matrix';
 class_data=table(feat_matrix,class_grnd_trth);
-
-save('feat_flt_1to4.mat','feat_matrix1','class_grnd_trth1');
 %%
-feat_matrix2=[feat_2,feat_3];
+feat_matrix2=[feat_1,feat_4];
 % class_grnd_trth1=[class_1;class_2;class_3];
-class_grnd_trth2=[class_2;class_3];
+class_grnd_trth2=[class_1;class_4];
 feat_matrix2=feat_matrix2';
 class_data_2=table(feat_matrix2,class_grnd_trth2);
 %% Save features as Mat file
-save('feat_flt_23.mat','feat_matrix2','class_grnd_trth2');
+save('feat_dist_1to4.mat','feat_matrix1','class_grnd_trth1');
 
 %%
 feat_matrix1=[feat_1,feat_2,feat_3];

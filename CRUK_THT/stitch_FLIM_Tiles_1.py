@@ -17,6 +17,8 @@ import h5py
 from scipy import ndimage as ndi
 from scipy.io import savemat
 from coreg_lib import coreg_img_pre_process
+
+import hdf5storage
 #%%
 
 
@@ -126,20 +128,20 @@ for key, value in positions.items():
     
 no_of_chs=310
 # Axis must be swapped from Tile configuration to Python indexing
-stitch_intensity_arr = np.zeros([stitch_img_shape[1], stitch_img_shape[0]], dtype=np.uint16)
-stitch_intensity = np.zeros([stitch_img_shape[1], stitch_img_shape[0]], dtype=np.uint16)
-stitch_intensity_cube  = np.zeros([stitch_img_shape[1], stitch_img_shape[0], no_of_chs], dtype=np.uint16)
-stitch_flt_cube  = np.zeros([stitch_img_shape[1], stitch_img_shape[0], no_of_chs], dtype=np.uint16)
-stitch_intensity_cube_f  = np.zeros([stitch_img_shape[0], stitch_img_shape[1], no_of_chs], dtype=np.uint16)
-stitch_flt_cube_f  = np.zeros([stitch_img_shape[0], stitch_img_shape[1], no_of_chs], dtype=np.uint16)
+stitch_intensity_arr = np.zeros([stitch_img_shape[1], stitch_img_shape[0]], dtype=np.float64)
+stitch_intensity = np.zeros([stitch_img_shape[1], stitch_img_shape[0]], dtype=np.float64)
+stitch_intensity_cube  = np.zeros([stitch_img_shape[1], stitch_img_shape[0], no_of_chs], dtype=np.float64)
+stitch_flt_cube  = np.zeros([stitch_img_shape[1], stitch_img_shape[0], no_of_chs], dtype=np.float64)
+stitch_intensity_cube_f  = np.zeros([stitch_img_shape[0], stitch_img_shape[1], no_of_chs], dtype=np.float64)
+stitch_flt_cube_f  = np.zeros([stitch_img_shape[0], stitch_img_shape[1], no_of_chs], dtype=np.float64)
 
-# stitch_intensity_arr = np.zeros([stitch_img_shape[0] + shift_x, stitch_img_shape[1] + shift_y], dtype=np.uint16)
-# stitch_intensity = np.zeros([stitch_img_shape[0] + shift_x, stitch_img_shape[1] + shift_y], dtype=np.uint16)
-# stitch_intensity_cube  = np.zeros([stitch_img_shape[0] + shift_x, stitch_img_shape[1] + shift_y, no_of_chs], dtype=np.uint16)
+# stitch_intensity_arr = np.zeros([stitch_img_shape[0] + shift_x, stitch_img_shape[1] + shift_y], dtype=np.float64)
+# stitch_intensity = np.zeros([stitch_img_shape[0] + shift_x, stitch_img_shape[1] + shift_y], dtype=np.float64)
+# stitch_intensity_cube  = np.zeros([stitch_img_shape[0] + shift_x, stitch_img_shape[1] + shift_y, no_of_chs], dtype=np.float64)
 
-# stitch_intensity_arr = np.zeros([stitch_img_shape[1], stitch_img_shape[0]], dtype=np.uint16)
-# stitch_intensity = np.zeros([stitch_img_shape[1], stitch_img_shape[0]], dtype=np.uint16)
-# stitch_intensity_cube  = np.zeros([stitch_img_shape[1], stitch_img_shape[0], no_of_chs], dtype=np.uint16)
+# stitch_intensity_arr = np.zeros([stitch_img_shape[1], stitch_img_shape[0]], dtype=np.float64)
+# stitch_intensity = np.zeros([stitch_img_shape[1], stitch_img_shape[0]], dtype=np.float64)
+# stitch_intensity_cube  = np.zeros([stitch_img_shape[1], stitch_img_shape[0], no_of_chs], dtype=np.float64)
 
 
 #%%
@@ -278,7 +280,8 @@ stitch_intensity = np.flipud(cv2.rotate(stitch_intensity, cv2.ROTATE_90_COUNTERC
 for page in range(no_of_chs):
     stitch_intensity_cube_f[:,:,page]=np.flipud(cv2.rotate(stitch_intensity_cube[:,:,page],cv2.ROTATE_90_COUNTERCLOCKWISE))
     stitch_flt_cube_f[:,:,page]=np.flipud(cv2.rotate(stitch_flt_cube[:,:,page],cv2.ROTATE_90_COUNTERCLOCKWISE))
-    
+    # stitch_intensity_cube_f[:,:,page]=np.flipud(ndi.rotate(stitch_intensity_cube[:,:,page],-90,mode='nearest'))
+    # stitch_flt_cube_f[:,:,page]=np.flipud(ndi.rotate(stitch_flt_cube[:,:,page],-90,mode='nearest'))
 
 
 #%%
@@ -341,10 +344,10 @@ plt.title('Mat stitched')
 # else:
 #     print('Break')
 
-stitch_intensity_1 = np.zeros([stitch_img_shape[0], stitch_img_shape[1]], dtype=np.uint16)
+stitch_intensity_1 = np.zeros([stitch_img_shape[0], stitch_img_shape[1]], dtype=np.float64)
 
-stitch_intensity_cube_f_1  = np.zeros([stitch_img_shape[1], stitch_img_shape[0], no_of_chs], dtype=np.uint16)
-stitch_flt_cube_f_1  = np.zeros([stitch_img_shape[1], stitch_img_shape[0], no_of_chs], dtype=np.uint16)
+stitch_intensity_cube_f_1  = np.zeros([stitch_img_shape[1], stitch_img_shape[0], no_of_chs], dtype=np.float64)
+stitch_flt_cube_f_1  = np.zeros([stitch_img_shape[1], stitch_img_shape[0], no_of_chs], dtype=np.float64)
 
 
 stitch_intensity_1 = np.fliplr(np.flipud(stitch_intensity))
@@ -353,14 +356,18 @@ for page in range(no_of_chs):
     stitch_intensity_cube_f_1[:,:,page]=np.fliplr(np.flipud(stitch_intensity_cube[:,:,page]))
     stitch_flt_cube_f_1[:,:,page]=np.fliplr(np.flipud(stitch_flt_cube[:,:,page]))
     
-stitch_intensity_cube_f_2  = np.zeros([stitch_img_shape[0], stitch_img_shape[1], no_of_chs], dtype=np.uint16)
-stitch_flt_cube_f_2  = np.zeros([stitch_img_shape[0], stitch_img_shape[1], no_of_chs], dtype=np.uint16)
+stitch_intensity_cube_f_2  = np.zeros([stitch_img_shape[0], stitch_img_shape[1], no_of_chs], dtype=np.float64)
+stitch_flt_cube_f_2  = np.zeros([stitch_img_shape[0], stitch_img_shape[1], no_of_chs], dtype=np.float64)
 
 for page in range(no_of_chs):
     stitch_intensity_cube_f_1_page=stitch_intensity_cube_f_1[:,:,page]
     stitch_flt_cube_f_1_page=stitch_flt_cube_f_1[:,:,page]
+    
     stitch_intensity_cube_f_2[:,:,page]=np.fliplr(cv2.rotate(stitch_intensity_cube_f_1_page,cv2.ROTATE_90_CLOCKWISE))
     stitch_flt_cube_f_2[:,:,page]=np.fliplr(cv2.rotate(stitch_flt_cube_f_1_page,cv2.ROTATE_90_CLOCKWISE))
+    
+    # stitch_intensity_cube_f_2[:,:,page]=np.fliplr(ndi.rotate(stitch_intensity_cube_f_1_page,90,mode='nearest'))
+    # stitch_flt_cube_f_2[:,:,page]=np.fliplr(ndi.rotate(stitch_flt_cube_f_1_page,90,mode='nearest'))
     
 
 
@@ -373,6 +380,7 @@ stitch_intensity=stitch_intensity_1
 stitch_intensity_cube_f=stitch_intensity_cube_f_2
 stitch_flt_cube_f=stitch_flt_cube_f_2
 stitch_flt_cube_f[stitch_flt_cube_f>10]=0
+stitch_flt_cube_f[stitch_flt_cube_f<0]=0
 #%%    
 plt.figure(50)
 plt.subplot(1,3,1)
@@ -398,7 +406,14 @@ plt.subplot(1,3,3)
 plt.imshow(stitch_flt_cube_f[:,:,page],cmap='gray')
 plt.title('Flt ')
 # plt.show()
+#%%
+# page=150
+plt.figure(52)
+plt.imshow(stitch_intensity_cube_f_1_page,cmap='gray')
+plt.title('Flt ')
 
 #%%
 mdic={'stitch_intensity':stitch_intensity,'stitch_intensity_cube':stitch_intensity_cube_f,'stitch_flt_cube':stitch_flt_cube_f}
-savemat(f"{base_dir}/core_stitched.mat", mdic)
+matfile_name=base_dir+'/core_stitched_T.mat'
+hdf5storage.savemat(matfile_name, mdic,format='7.3',oned_as='column',store_python_metadata=True)
+# hdf5storage.write(data=mdic,path=base_dir,filename='core_stitched_T.mat',store_python_metadata=True,matlab_compatible=True)

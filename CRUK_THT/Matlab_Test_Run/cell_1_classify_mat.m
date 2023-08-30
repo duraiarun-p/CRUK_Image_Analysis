@@ -102,12 +102,12 @@ class_data=table(feat_matrix1,class_grnd_trth1);
 
 %%
 class_1=class_grnd_trth(class_1_ind(1:1000));
-class_2=class_grnd_trth(class_2_ind(1:500));
-class_3=class_grnd_trth(class_3_ind(1:500));
+class_2=class_grnd_trth(class_2_ind(1:1000));
+class_3=class_grnd_trth(class_3_ind(1:1000));
 
 feat_1=feat_matrix(class_1_ind(1:1000),:);
-feat_2=feat_matrix(class_2_ind(1:500),:);
-feat_3=feat_matrix(class_3_ind(1:500),:);
+feat_2=feat_matrix(class_2_ind(1:1000),:);
+feat_3=feat_matrix(class_3_ind(1:1000),:);
 
 feat_matrix1=[feat_1;feat_2;feat_3];
 class_grnd_trth1=[class_1;class_2;class_3];

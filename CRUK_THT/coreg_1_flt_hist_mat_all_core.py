@@ -34,3 +34,5 @@ for base_dir in base_dir_lis:
     print(base_dir)
     cr.coreg_hist_int_flt(base_dir)
     print(f"{base_dir} is completed")
+    
+#%%

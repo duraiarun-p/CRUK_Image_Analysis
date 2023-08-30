@@ -39,7 +39,7 @@ flt_int(:,:,spec)=new_slice;
 figure(7),
 imshow(HE)
 %%
-nbin=256;
+nbin=10;
 cell_ind=1;
 noofcells=length(bound_txed);
 feat_matrix=zeros(nbin*flt_siz(3),noofcells);
@@ -85,13 +85,27 @@ class_grnd_trth1=[class_1;class_2;class_3];
 class_data=table(feat_matrix1,class_grnd_trth1);
 
 %%
+% class_1=class_grnd_trth(class_1_ind(1:1000));
+% class_2=class_grnd_trth(class_2_ind(1:500));
+% class_3=class_grnd_trth(class_3_ind(1:500));
+% 
+% feat_1=feat_matrix(class_1_ind(1:1000),:);
+% feat_2=feat_matrix(class_2_ind(1:500),:);
+% feat_3=feat_matrix(class_3_ind(1:500),:);
+% 
+% feat_matrix1=[feat_1;feat_2;feat_3];
+% class_grnd_trth1=[class_1;class_2;class_3];
+% % 
+% class_data_1=table(feat_matrix1,class_grnd_trth1);
+
+%%
 class_1=class_grnd_trth(class_1_ind(1:1000));
-class_2=class_grnd_trth(class_2_ind(1:500));
-class_3=class_grnd_trth(class_3_ind(1:500));
+class_2=class_grnd_trth(class_2_ind(1:1000));
+class_3=class_grnd_trth(class_3_ind(1:1000));
 
 feat_1=feat_matrix(class_1_ind(1:1000),:);
-feat_2=feat_matrix(class_2_ind(1:500),:);
-feat_3=feat_matrix(class_3_ind(1:500),:);
+feat_2=feat_matrix(class_2_ind(1:1000),:);
+feat_3=feat_matrix(class_3_ind(1:1000),:);
 
 feat_matrix1=[feat_1;feat_2;feat_3];
 class_grnd_trth1=[class_1;class_2;class_3];

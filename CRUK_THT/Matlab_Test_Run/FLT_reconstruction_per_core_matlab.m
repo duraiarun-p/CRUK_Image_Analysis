@@ -13,8 +13,11 @@ binToFit2=[1,15];
 %% FLT reconstruction
 currentFolder = pwd;
 % filePath = uigetdir; 
-filePath = '/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-2_Col-3_20230216';
+% filePath = '/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-2_Col-3_20230216';
 % filePath = '/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-2_20230215';
+% filePath='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-3_Col-5_20230218';
+% filePath='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/RT/Row-4_Col-1_20230214';
+filePath='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/RT/Row-6_Col-10_20230223';
 
 flt_recon_core_mat(filePath,currentFolder,numberoflambdas,binToFit);
 %%
