@@ -17,12 +17,13 @@ base_dir_all{3,1}='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/
 base_dir_all{4,1}='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/RT/Row-4_Col-1_20230214/Mat_output2';
 base_dir_all{5,1}='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/RT/Row-6_Col-10_20230223/Mat_output2';
 
-for base_i = 1:length(base_dir_all)
-% for base_i = 1:1
+% for base_i = 1:length(base_dir_all)
+for base_i = 2:2
 %% Load stitched and masked flt cubes
 base_dir=base_dir_all{base_i,1};
+% base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Mat_output2';
 cd(base_dir)
-load("core_stitched_masked_TX.mat")
+load("core_stitched_masked.mat")
 %%
 
 files=dir(base_dir);
@@ -91,9 +92,12 @@ plot(r_new1,c_new1, 'r+', 'MarkerSize', 30, 'LineWidth', 2);
 % plot(mid_r_new1,mid_c_new1, 'r+', 'MarkerSize', 30, 'LineWidth', 2);
 hold off;
 title('Registered RGB - with points')
+figure(7),
+imshowpair(stitch_intensity_masked,movingRegisteredRGB,"Scaling","joint")
+
 %% Save registration results
 
-imwrite(movingRegistered_rgb,'coreg_HE.tiff');
-save('tforms.mat','tform_HF','T_resize');
+% imwrite(movingRegistered_rgb,'coreg_HE.tiff');
+% save('tforms.mat','tform_HF','T_resize');
 disp(base_dir)
 end

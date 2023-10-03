@@ -15,8 +15,9 @@ base_dir_all{3,1}='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/
 base_dir_all{4,1}='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/RT/Row-4_Col-1_20230214/Mat_output2';
 base_dir_all{5,1}='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/RT/Row-6_Col-10_20230223/Mat_output2';
 %% Training data generation
-% matfilename='feat_flt_1to4.mat';
-matfilename='feat_dist_1to4.mat';
+matfilename='feat_flt_1to4.mat';
+% matfilename='feat_dist_1to4.mat';
+% matfilename='feat_aug_23.mat';
 base_dir=base_dir_all{1,1};
 cd(base_dir)
 % load('feat_flt_1.mat');

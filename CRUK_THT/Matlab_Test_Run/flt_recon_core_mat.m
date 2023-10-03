@@ -219,10 +219,12 @@ for file_ind=1:all_files_len
         
 
         matfilename=[outputdir,num2str(file_ind),'.mat'];
+        % matfilename=[currentFolder,num2str(file_ind),'.mat'];
         imgfilename=[outputdir,num2str(file_ind),'.tiff'];
         imwrite(rescale(allIntensityImages1),imgfilename)
 
     save(matfilename,'allIntensityImages1','lifetimeImageData1','lifetimeAlphaData1','-v7.3');
+    % copyfile matfilename outputdir
 %     end
 end
 matcorefilename=[outputdir,'core_all','.mat'];

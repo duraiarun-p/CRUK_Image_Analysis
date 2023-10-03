@@ -22,24 +22,33 @@ from coreg_lib import coreg_img_pre_process
 import hdf5storage
 #%%
 
-base_dir_all=[]
+# base_dir_all=[]
 
-base_dir_all.append('/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-2_20230215/Mat_output')
-base_dir_all.append('/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-9_20230222/Mat_output')
-base_dir_all.append('/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-13_20230226/Mat_output')
-base_dir_all.append('/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-3_Col-5_20230218/Mat_output2')
-base_dir_all.append('/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/RT/Row-4_Col-1_20230214/Mat_output2')
-base_dir_all.append('/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/RT/Row-6_Col-10_20230223/Mat_output2')
+# base_dir_all.append('/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-2_20230215/Mat_output')
+# base_dir_all.append('/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-9_20230222/Mat_output')
+# base_dir_all.append('/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-13_20230226/Mat_output')
+# base_dir_all.append('/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-3_Col-5_20230218/Mat_output2')
+# base_dir_all.append('/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/RT/Row-4_Col-1_20230214/Mat_output2')
+# base_dir_all.append('/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/RT/Row-6_Col-10_20230223/Mat_output2')
 
 #%%
 
-base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-2_20230215/Mat_output'
-base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-9_20230222/Mat_output'
-base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-13_20230226/Mat_output'
-base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-3_Col-5_20230218/Mat_output2'
-base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/RT/Row-4_Col-1_20230214/Mat_output2'
-base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/RT/Row-6_Col-10_20230223/Mat_output2'
+# base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-2_20230215/Mat_output'
+# base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-9_20230222/Mat_output'
+# base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-13_20230226/Mat_output'
+# base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-3_Col-5_20230218/Mat_output2'
+# base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/RT/Row-4_Col-1_20230214/Mat_output2'
+# base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/RT/Row-6_Col-10_20230223/Mat_output2'
 
+
+# base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Mat_output2'
+
+base_dir_all=os.listdir('/mnt/local_share/TMA/FS-FLIM/raw/Tumour_2B/')
+base_dir_all.sort()
+
+core_number=78
+base_dir='/mnt/local_share/TMA/FS-FLIM/raw/Tumour_2B/'+base_dir_all[core_number]+'/Mat_output2'
+print(base_dir)
 #%%
 # for base_dir in base_dir_all:
     
@@ -155,10 +164,16 @@ stitch_flt_cube_f  = np.zeros([stitch_img_shape[0], stitch_img_shape[1], no_of_c
 # stitch_intensity = np.zeros([stitch_img_shape[1], stitch_img_shape[0]], dtype=np.float64)
 # stitch_intensity_cube  = np.zeros([stitch_img_shape[1], stitch_img_shape[0], no_of_chs], dtype=np.float64)
 
+# def rotate_image(image, angle):
+#   image_center = tuple(np.array(image.shape[1::-1]) / 2)
+#   rot_mat = cv2.getRotationMatrix2D(image_center, angle, 1.0)
+#   result = cv2.warpAffine(image, rot_mat, image.shape[1::-1], flags=cv2.INTER_LINEAR)
+#   return result
 
 #%%
 
 img_file_order=np.array([1,4,7,2,5,8,3,6,9])
+# img_file_order=img_file_order+1
 mat_file_order=np.array([1,2,3,4,5,6,7,8,9])
 
 # for t_i, p in positions.items():
@@ -275,11 +290,11 @@ for t_i, p in positions_new.items():
     # stitch_intensity_cube[p[0]:p[0]+tile_size, p[1]:p[1]+tile_size, :] = np.flipud(ndi.rotate(lifetimeAlphaData1,90))
     
     # num=int(t_i)
-    print('Tile finished %s'%num)
-    plt.figure(2)
-    plt.subplot(3,3,num)
-    plt.imshow(intensity1,cmap='gray')
-    plt.show()
+    # print('Tile finished %s'%num)
+    # plt.figure(2)
+    # plt.subplot(3,3,num)
+    # plt.imshow(intensity1,cmap='gray')
+    # plt.show()
 
     
 #%%
@@ -301,32 +316,32 @@ thresh=200# Image Thresholding
 hist_img_hsv_f,hist_img_f,hist_img_gray_f,hist_mask,hist_img_gray=coreg_img_pre_process(hist_img,thresh)
 
 #%%
-plt.figure(1)
-plt.tight_layout()
-plt.subplot(1,2,2)
-plt.imshow(stitch_intensity, cmap="gray")
-plt.title('from mat array')
-plt.subplot(1,2,1)
-plt.imshow(stitch_intensity_arr, cmap="gray")
-plt.title('from img')
+# plt.figure(1)
+# plt.tight_layout()
+# plt.subplot(1,2,2)
+# plt.imshow(stitch_intensity, cmap="gray")
+# plt.title('from mat array')
+# plt.subplot(1,2,1)
+# plt.imshow(stitch_intensity_arr, cmap="gray")
+# plt.title('from img')
 
 #%%
 page=100
-plt.figure(3)
-plt.subplot(1,2,1)
-plt.imshow(stitch_intensity_cube[:,:,page],cmap='gray')
-plt.colorbar()
-plt.subplot(1,2,2)
-plt.imshow(stitch_flt_cube[:,:,page],cmap='gray')
-plt.colorbar()
-plt.show()
-plt.figure(4)
-plt.subplot(1,2,1)
-plt.imshow(stitch_intensity_cube_f[:,:,page],cmap='gray')
-plt.colorbar()
-plt.subplot(1,2,2)
-plt.imshow(stitch_flt_cube_f[:,:,page],cmap='gray')
-plt.colorbar()
+# plt.figure(3)
+# plt.subplot(1,2,1)
+# plt.imshow(stitch_intensity_cube[:,:,page],cmap='gray')
+# plt.colorbar()
+# plt.subplot(1,2,2)
+# plt.imshow(stitch_flt_cube[:,:,page],cmap='gray')
+# plt.colorbar()
+# plt.show()
+# plt.figure(4)
+# plt.subplot(1,2,1)
+# plt.imshow(stitch_intensity_cube_f[:,:,page],cmap='gray')
+# plt.colorbar()
+# plt.subplot(1,2,2)
+# plt.imshow(stitch_flt_cube_f[:,:,page],cmap='gray')
+# plt.colorbar()
 # plt.show()
 #%%
 
@@ -334,16 +349,16 @@ plt.colorbar()
 # plt.imshow(stitch_fiji,cmap='gray')
 # plt.show()
 #%%
-plt.figure(5)
-plt.subplot(1,3,1)
-plt.imshow(hist_img_f,cmap='gray')
-plt.title('Hist GT Img')
-plt.subplot(1,3,2)
-plt.imshow(stitch_fiji,cmap='gray')
-plt.title('Fiji Output')
-plt.subplot(1,3,3)
-plt.imshow(stitch_intensity,cmap='gray')
-plt.title('Mat stitched')
+# plt.figure(5)
+# plt.subplot(1,3,1)
+# plt.imshow(hist_img_f,cmap='gray')
+# plt.title('Hist GT Img')
+# plt.subplot(1,3,2)
+# plt.imshow(stitch_fiji,cmap='gray')
+# plt.title('Fiji Output')
+# plt.subplot(1,3,3)
+# plt.imshow(stitch_intensity,cmap='gray')
+# plt.title('Mat stitched')
 # plt.show()
 # plt.savefig(f"{base_dir}/stitched_compared.png")
 
@@ -362,7 +377,10 @@ stitch_intensity_cube_f_1  = np.zeros([stitch_img_shape[1], stitch_img_shape[0],
 stitch_flt_cube_f_1  = np.zeros([stitch_img_shape[1], stitch_img_shape[0], no_of_chs], dtype=np.float64)
 
 
-stitch_intensity_1 = np.fliplr(np.flipud(stitch_intensity))
+
+stitch_intensity_1 = stitch_intensity
+
+# stitch_intensity_1 = np.fliplr(np.flipud(stitch_intensity))
 # stitch_intensity_1 = np.fliplr(np.flipud(stitch_intensity_1))# Needed for masking
 
 for page in range(no_of_chs):
@@ -384,13 +402,26 @@ for page in range(no_of_chs):
     
     # stitch_intensity_cube_f_2[:,:,page]=np.fliplr(np.flipud(stitch_intensity_cube_f_2_page))
     # stitch_flt_cube_f_2[:,:,page]=np.fliplr(np.flipud(stitch_flt_cube_f_2_page))
+    # stitch_intensity_cube_f_1_page=np.fliplr(cv2.rotate(stitch_intensity_cube_f_1_page,cv2.ROTATE_90_CLOCKWISE))
+    # stitch_flt_cube_f_1_page=np.fliplr(cv2.rotate(stitch_flt_cube_f_1_page,cv2.ROTATE_90_CLOCKWISE))
+    
+    # stitch_intensity_cube_f_2[:,:,page]=np.fliplr(cv2.rotate(stitch_intensity_cube_f_1_page,cv2.ROTATE_90_CLOCKWISE))
+    # stitch_flt_cube_f_2[:,:,page]=np.fliplr(cv2.rotate(stitch_flt_cube_f_1_page,cv2.ROTATE_90_CLOCKWISE))
     
 
-
+stitch_flt_cube_f_2=stitch_flt_cube_f
+stitch_intensity_cube_f_2=stitch_intensity_cube_f
 
 del stitch_intensity, stitch_intensity_cube_f, stitch_flt_cube_f
 
+stitch_intensity_1=np.flipud(np.fliplr(stitch_intensity_1))
 
+for page in range(no_of_chs):
+    stitch_intensity_cube_f_2_page=stitch_intensity_cube_f_2[:,:,page]
+    stitch_flt_cube_f_2_page=stitch_flt_cube_f_2[:,:,page]
+    
+    stitch_intensity_cube_f_2[:,:,page]=np.flipud(np.fliplr(stitch_intensity_cube_f_2_page))
+    stitch_flt_cube_f_2[:,:,page]=np.flipud(np.fliplr(stitch_flt_cube_f_2_page))
 
 stitch_intensity=stitch_intensity_1
 stitch_intensity_cube_f=stitch_intensity_cube_f_2
@@ -424,13 +455,15 @@ plt.title('Flt ')
 # plt.show()
 #%%
 # page=150
-plt.figure(52)
-plt.imshow(stitch_intensity_cube_f_1_page,cmap='gray')
-plt.title('Flt ')
+# plt.figure(52)
+# plt.imshow(stitch_intensity_cube_f_1_page,cmap='gray')
+# plt.title('Flt ')
 
 #%%
 mdic={'stitch_intensity':stitch_intensity,'stitch_intensity_cube':stitch_intensity_cube_f,'stitch_flt_cube':stitch_flt_cube_f}
 matfile_name=base_dir+'/core_stitched_TX.mat'
 hdf5storage.savemat(matfile_name, mdic,format='7.3',oned_as='row',store_python_metadata=True)
+print(base_dir)
+print('Core number: %s'%core_number)
 # Dont use above syntax for saving mat file
 # hdf5storage.write(data=mdic,path=base_dir,filename=matfile_name,store_python_metadata=True,matlab_compatible=True)

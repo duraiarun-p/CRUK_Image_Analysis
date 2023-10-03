@@ -35,6 +35,7 @@ from timeit import default_timer as timer
 model_base_dir='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/'
 #%%
 gt_mat_cont_file=model_base_dir+'/train_data_Py_Dist_1to4.mat'
+
 gt_mat_contents=h5py.File(gt_mat_cont_file,'r')
 # gt_mat_contents=loadmat(gt_mat_cont_file)
 gt_mat_contents_list=list(gt_mat_contents.keys())
@@ -56,10 +57,10 @@ X_train, X_test, y_train, y_test = train_test_split(feat, label, test_size=0.33,
 #%% Classification Model and hyperparameters
 # #Linear SVM
 # clf=svm.SVC()
-#Non Linear SVM
-clf=svm.NuSVC(gamma='auto',decision_function_shape='ovo')
-# #Random Forest Tree
-# clf = RandomForestClassifier(random_state=0)
+# #Non Linear SVM
+# clf=svm.NuSVC(gamma='auto',decision_function_shape='ovo')
+#Random Forest Tree
+clf = RandomForestClassifier(random_state=0)
 
 model_filename = model_base_dir+'NuSVM_CV_trained.sav'
 
@@ -115,6 +116,7 @@ plt.show()
 #%%
 
 clf_score=[perf_train[0],perf_test[0],perf_cv[0],perf_cv[1],perf_train[1],perf_test[1],perf_mcc]
+print('Acc-train,Acc-test,CV-mu,CV-std,F1-train,F1-test,MCC')
 print(clf_score)
 
 #%%
