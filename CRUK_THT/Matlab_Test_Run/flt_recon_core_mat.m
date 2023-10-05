@@ -186,7 +186,7 @@ for file_ind=1:all_files_len
 
         %return to matlab scripts directory
         cd(currentFolder)
-        
+        disp('Loaded')
         
 
 %         bins_array_3 = permute(bins_array_3, [4 3 1 2]); % This is the place that check for array dimension and changes if needed
@@ -203,7 +203,7 @@ for file_ind=1:all_files_len
         disp("fitting complete - execution time: " + time_LS(file_ind) + " seconds");
 
         catch
-            continue;
+            % continue;
         allIntensityImages1=zeros(frame_size_x,frame_size_x);
         lifetimeImageData1=zeros(n_spectrum,frame_size_x,frame_size_x);
         lifetimeAlphaData1=zeros(n_spectrum,frame_size_x,frame_size_x);
@@ -223,12 +223,12 @@ for file_ind=1:all_files_len
         imgfilename=[outputdir,num2str(file_ind),'.tiff'];
         imwrite(rescale(allIntensityImages1),imgfilename)
 
-    save(matfilename,'allIntensityImages1','lifetimeImageData1','lifetimeAlphaData1','-v7.3');
+    % save(matfilename,'allIntensityImages1','lifetimeImageData1','lifetimeAlphaData1','-v7.3');
     % copyfile matfilename outputdir
 %     end
 end
 matcorefilename=[outputdir,'core_all','.mat'];
-save(matcorefilename,'allIntensityImages','lifetimeImageData','lifetimeAlphaData','-v7.3');
+% save(matcorefilename,'allIntensityImages','lifetimeImageData','lifetimeAlphaData','-v7.3');
 end_time=toc;
 disp((end_time)/60);
 end

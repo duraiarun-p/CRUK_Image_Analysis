@@ -33,9 +33,10 @@ bins_array_selected = reshape(bins_array_3, n_spectrum, n_bins, frame_size*frame
 for speci=1:n_spectrum
      binresp1=squeeze(bins_array_selected(speci,:,:));
      [timebin_max,timebin_max_ind]=max(binresp1,[],1);
-     timebin_max_ind_st=timebin_max_ind-3;
-     timebin_max_ind_st(timebin_max_ind_st<0)=1;
-     timebin_max_ind(timebin_max_ind_st<0)=4;
+     % timebin_max_ind_st=timebin_max_ind-3;
+     timebin_max_ind_st=1;
+     timebin_max_ind_st(timebin_max_ind_st<=0)=1;
+     timebin_max_ind(timebin_max_ind_st<=0)=4;
 end
 bins_array_selected=bins_array_selected(:,timebin_max_ind_st:timebin_max_ind,:);
 

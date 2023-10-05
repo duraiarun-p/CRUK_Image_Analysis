@@ -25,8 +25,9 @@ currentFolder='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/FLT_Output/';
 core_lists=dir('//mnt/local_share/TMA/FS-FLIM/raw/Tumour_2B/');
 core_lists(1:2)=[];
 
-% core_number=5;
-for core_number=5:length(core_lists)
+core_number=14;
+core_number=core_number+1;
+% for core_number=5:length(core_lists)
 filePath=[core_lists(core_number).folder,'/',core_lists(core_number).name];
 disp(filePath);
 % oP_Folder=[currentFolder,core_lists(core_number).name,'/'];
@@ -43,4 +44,4 @@ flt_recon_core_mat(filePath,currentFolder,numberoflambdas,binToFit2);
 %%
 disp(filePath);
 completed_time=toc/60;
-end
+% end
