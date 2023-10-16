@@ -223,12 +223,12 @@ for file_ind=1:all_files_len
         imgfilename=[outputdir,num2str(file_ind),'.tiff'];
         imwrite(rescale(allIntensityImages1),imgfilename)
 
-    % save(matfilename,'allIntensityImages1','lifetimeImageData1','lifetimeAlphaData1','-v7.3');
+    save(matfilename,'allIntensityImages1','lifetimeImageData1','lifetimeAlphaData1','-v7.3');
     % copyfile matfilename outputdir
 %     end
 end
 matcorefilename=[outputdir,'core_all','.mat'];
-% save(matcorefilename,'allIntensityImages','lifetimeImageData','lifetimeAlphaData','-v7.3');
+save(matcorefilename,'allIntensityImages','lifetimeImageData','lifetimeAlphaData','-v7.3');
 end_time=toc;
 disp((end_time)/60);
 end

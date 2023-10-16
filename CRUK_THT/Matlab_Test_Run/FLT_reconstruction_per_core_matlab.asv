@@ -11,7 +11,8 @@ binToFit=[12,15];
 binToFit2=[1,15];
 % outputdir='C:\Users\CRUK EDD\Documents\MATLAB\Test_Output\';
 %% FLT reconstruction
-currentFolder = pwd;
+% currentFolder = pwd;
+currentFolder='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/FLT_Output/';
 % filePath = uigetdir; 
 % filePath = '/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-2_Col-3_20230216';
 % filePath = '/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/Row-1_Col-2_20230215';
@@ -19,10 +20,33 @@ currentFolder = pwd;
 % filePath='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/RT/Row-4_Col-1_20230214';
 % % filePath='/home/cruk/Documents/PyWS_CRUK/CRUK_Image_Analysis/Test_Data/Tumour_1/RT/Row-6_Col-10_20230223';
 
-('/run/user/1000/gvfs/smb-share:server=cmvm.datastore.ed.ac.uk,share=cmvm/scs/groups/kdhaliwa-CRUKEDD/TMA/FS-FLIM/raw/Tumour_2B/Row-1_Col-1_20230214/Row_1_Col_1/workspace.frame_1.mat'
+% core_lists=dir('/run/user/1000/gvfs/smb-share:server=cmvm.datastore.ed.ac.uk,share=cmvm/scs/groups/kdhaliwa-CRUKEDD/TMA/FS-FLIM/raw/Tumour_2B/');
+
+core_lists=dir('//mnt/local_share/TMA/FS-FLIM/raw/Tumour_2B/');
+core_lists(1:2)=[];
+
+core_number=9;
+core_number=core_number+1;
+
+core_number_lis=[9,13,15,16,19,37,40,41,47,50,54,73,77]
+
+
+for core_number_ind=1:length(core_number_lis)
+    core_number=core_number_lis(core_number_ind);
+filePath=[core_lists(core_number).folder,'/',core_lists(core_number).name];
+disp(filePath);
+% oP_Folder=[currentFolder,core_lists(core_number).name,'/'];
+% 
+% if not(isfolder(oP_Folder))
+%     mkdir(oP_Folder)
+% end
+
 
 %%
-flt_recon_core_mat(filePath,currentFolder,numberoflambdas,binToFit);
+tic;
+% flt_recon_core_mat_1(filePath,oP_Folder,numberoflambdas,binToFit2);
+% flt_recon_core_mat(filePath,currentFolder,numberoflambdas,binToFit2);
 %%
-
-% completed_time=toc/60;
+disp(filePath);
+completed_time=toc/60;
+end

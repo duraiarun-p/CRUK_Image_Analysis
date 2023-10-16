@@ -289,12 +289,12 @@ for t_i, p in positions_new.items():
     # stitch_intensity[p[0]:p[0]+tile_size, p[1]:p[1]+tile_size] = np.flipud(ndi.rotate(allIntensityImages1,90))
     # stitch_intensity_cube[p[0]:p[0]+tile_size, p[1]:p[1]+tile_size, :] = np.flipud(ndi.rotate(lifetimeAlphaData1,90))
     
-    # num=int(t_i)
+    num=int(t_i)
     # print('Tile finished %s'%num)
-    # plt.figure(2)
-    # plt.subplot(3,3,num)
-    # plt.imshow(intensity1,cmap='gray')
-    # plt.show()
+    plt.figure(2)
+    plt.subplot(3,3,num)
+    plt.imshow(intensity1,cmap='gray')
+    plt.show()
 
     
 #%%
@@ -345,9 +345,9 @@ page=100
 # plt.show()
 #%%
 
-# plt.figure(4)
-# plt.imshow(stitch_fiji,cmap='gray')
-# plt.show()
+plt.figure(4)
+plt.imshow(stitch_fiji,cmap='gray')
+plt.show()
 #%%
 # plt.figure(5)
 # plt.subplot(1,3,1)

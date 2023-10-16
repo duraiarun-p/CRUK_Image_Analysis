@@ -9,7 +9,7 @@ base_dir_all_lis(1:2,:)=[];
 
 % for core_i =1 :length(base_dir_all_lis)
 
-for core_i =1:1
+for core_i =79:79
     base_dir=[base_dir_all_lis(core_i).folder,'/',base_dir_all_lis(core_i).name,'/Mat_output2/'];
     core_stitched_masked_file=[base_dir,'core_stitched_masked_TX.mat'];
     if isfile(core_stitched_masked_file)
